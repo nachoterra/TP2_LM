@@ -81,7 +81,7 @@ int main(void)
     ptr_estacion = Estacion_init(ESTACION4,ptr_estacion);
 
 
-    //SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
+    SetTargetFPS(100);               // Set our game to run at 60 frames-per-second
 
 
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -164,7 +164,7 @@ int main(void)
                 DrawModel(ptr_estacion[ESTACION2].model, ptr_estacion[ESTACION2].position, 0.5f, WHITE);   // Draw 3d model with texture
                 DrawModel(ptr_estacion[ESTACION3].model, ptr_estacion[ESTACION3].position, 0.5f, WHITE);   // Draw 3d model with texture
                 DrawModel(ptr_estacion[ESTACION4].model, ptr_estacion[ESTACION4].position, 0.5f, WHITE);   // Draw 3d model with texture
-                //DrawGrid(40, 5.0f);
+                DrawGrid(40, 5.0f);
                     
             EndMode3D();
             DrawFPS(50, 50);
