@@ -1,24 +1,12 @@
-/*******************************************************************************************
-*
-*   raylib [models] example - Plane rotations (yaw, pitch, roll)
-*
-*   Example originally created with raylib 1.8, last time updated with raylib 4.0
-*
-*   Example contributed by Berni (@Berni8k) and reviewed by Ramon Santamaria (@raysan5)
-*
-*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
-*   BSD-like license that allows static linking with closed source software
-*
-*   Copyright (c) 2017-2022 Berni (@Berni8k) and Ramon Santamaria (@raysan5)
-*
-********************************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "raylib.h"
-//#include "CSerialPort.h"
+
 
 #include "raymath.h"        // Required for: MatrixRotateXYZ()
 
+//#include "lib/CSerialPort.h"
 
 #define GRID_SLICES 40
 #define GRID_SPACING 5
@@ -87,7 +75,7 @@ int main(void)
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         // Update
-        scrollingBack -= 0.1f;
+        scrollingBack -= 0.5f;
         if (scrollingBack <= -background.width*2) scrollingBack = 0;
         //----------------------------------------------------------------------------------
         // Plane pitch (x-axis) controls
