@@ -1,48 +1,17 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "raylib.h"
 
 
-#include "raymath.h"        // Required for: MatrixRotateXYZ()
+#include "Estaciones.h"
 
-//#include "lib/CSerialPort.h"
-
-#define GRID_SLICES 40
-#define GRID_SPACING 5
-#define DIST_PLANE 75 
-
-enum Estaciones
-{
-    ESTACION0,
-    ESTACION1,
-    ESTACION2,
-    ESTACION3,
-    ESTACION4
-};
-
-
-typedef struct Estacion {
-    Texture2D texture;      // textura
-    Model model;            // objeto
-    float pitch;            // cabeceo
-    float roll;            // rolido
-    float yaw;            // orientacion
-    Vector3 position;     //posicion
-} Estacion;
 
 static Estacion* Estacion_init(int number, Estacion* ptr_estacion);
 
-
-
-
-
-int main(void)
+void Estaciones(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = 1200;
-    const int screenHeight = 700;
+    const int screenWidth = S_WIDTH;
+    const int screenHeight = S_HEIGHT;
 
     //SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(screenWidth, screenHeight, "ESTACIONES");
@@ -152,7 +121,7 @@ int main(void)
                 DrawModel(ptr_estacion[ESTACION2].model, ptr_estacion[ESTACION2].position, 0.5f, WHITE);   // Draw 3d model with texture
                 DrawModel(ptr_estacion[ESTACION3].model, ptr_estacion[ESTACION3].position, 0.5f, WHITE);   // Draw 3d model with texture
                 DrawModel(ptr_estacion[ESTACION4].model, ptr_estacion[ESTACION4].position, 0.5f, WHITE);   // Draw 3d model with texture
-                DrawGrid(40, 5.0f);
+                DrawGrid(GRID_SLICES, (float)GRID_SPACING);
                     
             EndMode3D();
             DrawFPS(50, 50);
@@ -182,7 +151,7 @@ int main(void)
     UnloadTexture(background);  // Unload background texture
     //--------------------------------------------------------------------------------------
 
-    return 0;    
+    //return 0;    
 
 
 
@@ -223,3 +192,4 @@ static Estacion* Estacion_init(int number, Estacion* ptr_estacion)
 
     return ptr_estacion;
 }
+

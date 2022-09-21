@@ -44,6 +44,10 @@
 		"system_error": "c",
 		"typeinfo": "c",
 		"utility": "c",
-		"cserialport.h": "c"
+		"cserialport.h": "c",
+		"windows.h": "c",
+		"raymath.h": "c",
+		"wtypesbase.h": "c",
+		"estaciones.h": "c"
 	}
 }
