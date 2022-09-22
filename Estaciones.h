@@ -4,7 +4,7 @@
 #include "C:/raylib/raylib/src/raylib.h"
 #include "C:/raylib/raylib/src/raymath.h"        // Required for: MatrixRotateXYZ()
 
-//#include "lib/CSerialPort.h"
+#include "lib/CSerialPort.h"
 
 #define GRID_SLICES 40
 #define GRID_SPACING 5
