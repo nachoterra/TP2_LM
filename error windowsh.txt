@@ -1,0 +1,61 @@
+ *  Executing task: C:/raylib/w64devkit/bin/mingw32-make.exe RAYLIB_PATH=C:/raylib/raylib PROJECT_NAME=main OBJS= *.c BUILD_MODE=DEBUG 
+
+mingw32-make main
+make[1]: Entering directory 'C:/Users/Nacho/Documents/GitHub/TP2_LM'
+gcc -o main *.c -Wall -std=c99 -D_DEFAULT_SOURCE -Wno-missing-braces -g -O0 C:/raylib/raylib/src/raylib.rc.data -Wl,--subsystem,windows -I. -IC:/raylib/raylib/src -IC:/raylib/raylib/src/external -L. -LC:/raylib/raylib/src -LC:/raylib/raylib/src -lraylib -lopengl32 -lgdi32 -lwinmm -DPLATFORM_DESKTOP
+In file included from c:\raylib\w64devkit\i686-w64-mingw32\include\windows.h:71,
+                 from lib/CSerialPort.h:24,
+                 from Estaciones.h:7,
+                 from Estaciones.c:4:
+c:\raylib\w64devkit\i686-w64-mingw32\include\wingdi.h:3158:28: error: 'Rectangle' redeclared as different kind of symbol
+ 3158 |   WINGDIAPI WINBOOL WINAPI Rectangle(HDC hdc,int left,int top,int right,int bottom);
+      |                            ^~~~~~~~~
+In file included from Estaciones.h:4:
+C:/raylib/raylib/src/raylib.h:237:3: note: previous declaration of 'Rectangle' with type 'Rectangle'
+  237 | } Rectangle;
+      |   ^~~~~~~~~
+In file included from c:\raylib\w64devkit\i686-w64-mingw32\include\windows.h:72:
+c:\raylib\w64devkit\i686-w64-mingw32\include\winuser.h:2282:29: error: conflicting types for 'CloseWindow'; have 'WINBOOL(struct HWND__ *)' {aka  
+int(struct HWND__ *)'}
+ 2282 |   WINUSERAPI WINBOOL WINAPI CloseWindow (HWND hWnd);
+      |                             ^~~~~~~~~~~
+C:/raylib/raylib/src/raylib.h:924:12: note: previous declaration of 'CloseWindow' with type 'void(void)'
+  924 | RLAPI void CloseWindow(void);                                     // Close window and unload OpenGL context
+      |            ^~~~~~~~~~~
+c:\raylib\w64devkit\i686-w64-mingw32\include\winuser.h:3760:25: error: conflicting types for 'ShowCursor'; have 'int(WINBOOL)' {aka 'int(int)'}   
+ 3760 |   WINUSERAPI int WINAPI ShowCursor(WINBOOL bShow);
+      |                         ^~~~~~~~~~
+C:/raylib/raylib/src/raylib.h:976:12: note: previous declaration of 'ShowCursor' with type 'void(void)'
+  976 | RLAPI void ShowCursor(void);                                      // Shows cursor
+      |            ^~~~~~~~~~
+In file included from c:\raylib\w64devkit\i686-w64-mingw32\include\windows.h:71,
+                 from lib/CSerialPort.h:24,
+                 from Estaciones.h:7,
+                 from main.c:1:
+c:\raylib\w64devkit\i686-w64-mingw32\include\wingdi.h:3158:28: error: 'Rectangle' redeclared as different kind of symbol
+ 3158 |   WINGDIAPI WINBOOL WINAPI Rectangle(HDC hdc,int left,int top,int right,int bottom);
+      |                            ^~~~~~~~~
+In file included from Estaciones.h:4:
+C:/raylib/raylib/src/raylib.h:237:3: note: previous declaration of 'Rectangle' with type 'Rectangle'
+  237 | } Rectangle;
+      |   ^~~~~~~~~
+In file included from c:\raylib\w64devkit\i686-w64-mingw32\include\windows.h:72:
+c:\raylib\w64devkit\i686-w64-mingw32\include\winuser.h:2282:29: error: conflicting types for 'CloseWindow'; have 'WINBOOL(struct HWND__ *)' {aka  
+int(struct HWND__ *)'}
+ 2282 |   WINUSERAPI WINBOOL WINAPI CloseWindow (HWND hWnd);
+      |                             ^~~~~~~~~~~
+C:/raylib/raylib/src/raylib.h:924:12: note: previous declaration of 'CloseWindow' with type 'void(void)'
+  924 | RLAPI void CloseWindow(void);                                     // Close window and unload OpenGL context
+      |            ^~~~~~~~~~~
+c:\raylib\w64devkit\i686-w64-mingw32\include\winuser.h:3760:25: error: conflicting types for 'ShowCursor'; have 'int(WINBOOL)' {aka 'int(int)'}   
+ 3760 |   WINUSERAPI int WINAPI ShowCursor(WINBOOL bShow);
+      |                         ^~~~~~~~~~
+C:/raylib/raylib/src/raylib.h:976:12: note: previous declaration of 'ShowCursor' with type 'void(void)'
+  976 | RLAPI void ShowCursor(void);                                      // Shows cursor
+      |            ^~~~~~~~~~
+make[1]: *** [Makefile:375: main] Error 1
+make[1]: Leaving directory 'C:/Users/Nacho/Documents/GitHub/TP2_LM'
+make: *** [Makefile:371: all] Error 2
+
+ *  The terminal process "C:\raylib\w64devkit\bin\mingw32-make.exe 'RAYLIB_PATH=C:/raylib/raylib', 'PROJECT_NAME=main', 'OBJS= *.c', 'BUILD_MODE=DEBUG'" terminated with exit code: 2. 
+ *  Terminal will be reused by tasks, press any key to close it. 
