@@ -48,6 +48,7 @@
 		"windows.h": "c",
 		"raymath.h": "c",
 		"wtypesbase.h": "c",
-		"estaciones.h": "c"
+		"estaciones.h": "c",
+		"winuser.h": "c"
 	}
 }

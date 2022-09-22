@@ -41,8 +41,14 @@ void Estaciones(void)
     SetTargetFPS(100);               // Set our game to run at 60 frames-per-second
 
 
+    PORT port_COM3 = OpenPort(3);
+    char recivestr[SERIAL_MESSAGE_SIZE];
+
+
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
+        ReciveData(port_COM3, recivestr, SERIAL_MESSAGE_SIZE); 
+        //printf("recivo:%s\n",recivestr);   
         // Update
         scrollingBack -= 0.5f;
         if (scrollingBack <= -background.width*2) scrollingBack = 0;
