@@ -15,6 +15,7 @@ void Estaciones(void)
 
     //SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(screenWidth, screenHeight, "ESTACIONES");
+    
 
     Camera camera = { 0 };
     camera.position = (Vector3){ 0.0f, 150.0f, 300.0f };// Camera position perspective
@@ -22,6 +23,8 @@ void Estaciones(void)
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
     camera.fovy = 30.0f;                                // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE;             // Camera type    
+
+
 
     //fondo
     Texture2D background = LoadTexture("resources/background/sky2.png");
@@ -38,7 +41,7 @@ void Estaciones(void)
     ptr_estacion = Estacion_init(ESTACION4,ptr_estacion);
 
 
-    //SetTargetFPS(100);               // Set our game to run at 60 frames-per-second
+    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
 
     PORT port_COM3 = OpenPort(PORTCOM3);
@@ -50,6 +53,22 @@ void Estaciones(void)
     char* pitch_ptr=&buffer[4];
     char* roll_ptr=&buffer[9];
     char* yaw_ptr=&buffer[14];
+
+
+    Matrix matrizY = { 0 }; 
+    Matrix matrizX = { 0 };
+    Matrix matrizZ = { 0 };    
+    Matrix matrizFINAL = { 0 };                                      
+
+
+    char roll_v[4]={0};
+    char pitch_v[4]={0};
+    char yaw_v[4]={0};
+
+
+
+
+
 
 
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -64,13 +83,22 @@ void Estaciones(void)
 
         //----------------------------------------------------------------------------------
         // Plane pitch (x-axis) controls
-        if (IsKeyDown(KEY_DOWN)) 
+        if (IsKeyDown(KEY_UP)) 
         {
-            ptr_estacion[ESTACION0].pitch += 0.6f;
+            ptr_estacion[ESTACION0].pitch += 1.0f;
+            ptr_estacion[ESTACION1].pitch += 1.0f;
+            ptr_estacion[ESTACION2].pitch += 1.0f;
+            ptr_estacion[ESTACION3].pitch += 1.0f;
+            ptr_estacion[ESTACION4].pitch += 1.0f;
         }
-        else if (IsKeyDown(KEY_UP)) 
+        else if (IsKeyDown(KEY_DOWN)) 
         {
-            ptr_estacion[ESTACION0].pitch -= 0.6f;
+            ptr_estacion[ESTACION0].pitch -= 1.0f;
+            ptr_estacion[ESTACION1].pitch -= 1.0f;
+            ptr_estacion[ESTACION2].pitch -= 1.0f;
+            ptr_estacion[ESTACION3].pitch -= 1.0f;
+            ptr_estacion[ESTACION4].pitch -= 1.0f;
+            
         }
         // else
         // {
@@ -79,13 +107,21 @@ void Estaciones(void)
         // }
 
         // Plane yaw (y-axis) controls
-        if (IsKeyDown(KEY_S)) 
+        if (IsKeyDown(KEY_A)) 
         {
             ptr_estacion[ESTACION0].yaw -= 1.0f;
+            ptr_estacion[ESTACION1].yaw -= 1.0f;
+            ptr_estacion[ESTACION2].yaw -= 1.0f;
+            ptr_estacion[ESTACION3].yaw -= 1.0f;
+            ptr_estacion[ESTACION4].yaw -= 1.0f;
         }
-        else if (IsKeyDown(KEY_A))
+        else if (IsKeyDown(KEY_S))
         { 
             ptr_estacion[ESTACION0].yaw += 1.0f;
+            ptr_estacion[ESTACION1].yaw += 1.0f;
+            ptr_estacion[ESTACION2].yaw += 1.0f;
+            ptr_estacion[ESTACION3].yaw += 1.0f;
+            ptr_estacion[ESTACION4].yaw += 1.0f;
         }
         // else
         // {
@@ -94,13 +130,22 @@ void Estaciones(void)
         // }
 
         // Plane roll (z-axis) controls
-        if (IsKeyDown(KEY_LEFT)) 
+        if (IsKeyDown(KEY_RIGHT)) 
         {
         ptr_estacion[ESTACION0].roll -= 1.0f;
+        ptr_estacion[ESTACION1].roll -= 1.0f;
+        ptr_estacion[ESTACION2].roll -= 1.0f;
+        ptr_estacion[ESTACION3].roll -= 1.0f;
+        ptr_estacion[ESTACION4].roll -= 1.0f;
+        
         }
-        else if (IsKeyDown(KEY_RIGHT)) 
+        else if (IsKeyDown(KEY_LEFT)) 
         {
         ptr_estacion[ESTACION0].roll += 1.0f;
+        ptr_estacion[ESTACION1].roll += 1.0f;
+        ptr_estacion[ESTACION2].roll += 1.0f;
+        ptr_estacion[ESTACION3].roll += 1.0f;
+        ptr_estacion[ESTACION4].roll += 1.0f;
         }
         // else
 
@@ -109,11 +154,92 @@ void Estaciones(void)
         //     else if (roll < 0.0f) roll += 0.5f;
         // }
 
+    matrizX.m0 = 1;
+    matrizX.m4 = 0;
+    matrizX.m8 = 0;
+    matrizX.m12 = 0;
+
+    matrizX.m1 = 0;
+    matrizX.m5 = cosf(DEG2RAD*ptr_estacion[ESTACION1].pitch);
+    matrizX.m9 = -sinf(DEG2RAD*ptr_estacion[ESTACION1].pitch);
+    matrizX.m13 = 0;
+
+    matrizX.m2 = 0;
+    matrizX.m6 = sinf(DEG2RAD*ptr_estacion[ESTACION1].pitch);
+    matrizX.m10 = cosf(DEG2RAD*ptr_estacion[ESTACION1].pitch);
+    matrizX.m14 = 0;
+
+    matrizX.m3 = 0;
+    matrizX.m7 = 0;
+    matrizX.m11 = 0;
+    matrizX.m15 = 1;
 
 
 
+    matrizZ.m0 = cosf(DEG2RAD*ptr_estacion[ESTACION1].roll);
+    matrizZ.m4 = -sinf(DEG2RAD*ptr_estacion[ESTACION1].roll);
+    matrizZ.m8 = 0;
+    matrizZ.m12 = 0;
 
-        ptr_estacion[ESTACION0].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION0].pitch, DEG2RAD*ptr_estacion[ESTACION0].yaw, DEG2RAD*ptr_estacion[ESTACION0].roll });
+    matrizZ.m1 = sinf(DEG2RAD*ptr_estacion[ESTACION1].roll);
+    matrizZ.m5 = cosf(DEG2RAD*ptr_estacion[ESTACION1].roll);
+    matrizZ.m9 = 
+    matrizZ.m13 = 0;
+
+    matrizZ.m2 = 0;
+    matrizZ.m6 = 0;
+    matrizZ.m10 = 1;
+    matrizZ.m14 = 0;
+
+    matrizZ.m3 = 0;
+    matrizZ.m7 = 0;
+    matrizZ.m11 = 0;
+    matrizZ.m15 = 1;
+
+
+
+    matrizY.m0 = cosf(DEG2RAD*ptr_estacion[ESTACION1].yaw);
+    matrizY.m4 = 0;
+    matrizY.m8 = sinf(DEG2RAD*ptr_estacion[ESTACION1].yaw);
+    matrizY.m12 = 0;
+
+    matrizY.m1 = 0;
+    matrizY.m5 = 1;
+    matrizY.m9 = 0;
+    matrizY.m13 = 0;
+
+    matrizY.m2 = -sinf(DEG2RAD*ptr_estacion[ESTACION1].yaw);
+    matrizY.m6 = 0;
+    matrizY.m10 = cosf(DEG2RAD*ptr_estacion[ESTACION1].yaw);
+    matrizY.m14 = 0;
+
+    matrizY.m3 = 0;
+    matrizY.m7 = 0;
+    matrizY.m11 = 0;
+    matrizY.m15 = 1;   
+
+    if((ptr_estacion[ESTACION1].yaw != 0.0f) && (ptr_estacion[ESTACION1].pitch != 0.0f)  )
+    {
+        matrizFINAL = MatrixMultiply(matrizX,matrizZ);
+        matrizFINAL = MatrixMultiply(matrizFINAL,matrizY);
+    }
+    else
+    {
+        matrizFINAL = MatrixMultiply(matrizX,matrizZ);
+        matrizFINAL = MatrixMultiply(matrizY,matrizFINAL);
+    }
+
+    ptr_estacion[ESTACION0].model.transform= matrizFINAL;
+
+    itoa(ptr_estacion[ESTACION1].pitch,pitch_v,4);
+    itoa(ptr_estacion[ESTACION1].roll,roll_v,4);
+    itoa(ptr_estacion[ESTACION1].yaw,yaw_v,4);
+
+
+
+        
+         
+       // ptr_estacion[ESTACION0].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION0].pitch, DEG2RAD*ptr_estacion[ESTACION0].yaw, DEG2RAD*ptr_estacion[ESTACION0].roll });
         ptr_estacion[ESTACION1].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION1].pitch, DEG2RAD*ptr_estacion[ESTACION1].yaw, DEG2RAD*ptr_estacion[ESTACION1].roll });
         ptr_estacion[ESTACION2].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION2].pitch, DEG2RAD*ptr_estacion[ESTACION2].yaw, DEG2RAD*ptr_estacion[ESTACION2].roll });
         ptr_estacion[ESTACION3].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION3].pitch, DEG2RAD*ptr_estacion[ESTACION3].yaw, DEG2RAD*ptr_estacion[ESTACION3].roll }); 
@@ -133,24 +259,36 @@ void Estaciones(void)
             BeginMode3D(camera);
 
                 DrawModel( ptr_estacion[ESTACION0].model, ptr_estacion[ESTACION0].position, 0.5f, WHITE);   // Draw 3d model with texture
-                DrawModel(ptr_estacion[ESTACION1].model, ptr_estacion[ESTACION1].position, 0.5f, WHITE);   // Draw 3d model with texture
-                DrawModel(ptr_estacion[ESTACION2].model, ptr_estacion[ESTACION2].position, 0.5f, WHITE);   // Draw 3d model with texture
-                DrawModel(ptr_estacion[ESTACION3].model, ptr_estacion[ESTACION3].position, 0.5f, WHITE);   // Draw 3d model with texture
-                DrawModel(ptr_estacion[ESTACION4].model, ptr_estacion[ESTACION4].position, 0.5f, WHITE);   // Draw 3d model with texture
-                //DrawGrid(GRID_SLICES, (float)GRID_SPACING);
-                    
+                //DrawModel(ptr_estacion[ESTACION1].model, ptr_estacion[ESTACION1].position, 0.5f, WHITE);   // Draw 3d model with texture
+                // DrawModel(ptr_estacion[ESTACION2].model, ptr_estacion[ESTACION2].position, 0.5f, WHITE);   // Draw 3d model with texture
+                // DrawModel(ptr_estacion[ESTACION3].model, ptr_estacion[ESTACION3].position, 0.5f, WHITE);   // Draw 3d model with texture
+                // DrawModel(ptr_estacion[ESTACION4].model, ptr_estacion[ESTACION4].position, 0.5f, WHITE);   // Draw 3d model with texture
+               // DrawModelEx(ptr_estacion[ESTACION0].model,ptr_estacion[ESTACION0].position,(Vector3){ 1,1,1 },ptr_estacion[ESTACION4].pitch,(Vector3){ 0.5f,0.5f,0.5f }, WHITE);
+                DrawGrid(GRID_SLICES, (float)GRID_SPACING);
+                DrawLine3D((Vector3){ 0,0,0 },(Vector3){ 100,0,0 },BLACK);   
+                DrawLine3D((Vector3){ 0,0,0 },(Vector3){ 0,100,0 },MAROON);   
+                DrawLine3D((Vector3){ 0,0,0 },(Vector3){ 0,0,100 },BLUE); 
             EndMode3D();
             DrawFPS(50, 50);
             // Draw controls info
             // DrawRectangle(30, 370, 260, 70, Fade(GREEN, 0.5f));
             // DrawRectangleLines(30, 370, 260, 70, Fade(DARKGREEN, 0.5f));
-             DrawText(pitch_ptr, 100, 5, 50, DARKGRAY);
+             DrawText(pitch_v, 100, 5, 20, DARKGRAY);
+             DrawText(roll_v, 100, 20, 20, DARKGRAY);
+             DrawText(yaw_v, 105, 40, 20, DARKGRAY);
             // DrawText("Roll controlled with: KEY_LEFT / KEY_RIGHT", 40, 400, 10, DARKGRAY);
             // DrawText("Yaw controlled with: KEY_A / KEY_S", 40, 420, 10, DARKGRAY);
 
             // DrawText("(c) WWI Plane Model created by GiaHanLam", screenWidth - 240, screenHeight - 20, 10, DARKGRAY);
 
         EndDrawing();
+
+ 
+
+
+
+
+
         //---------------------------------------------------------------------------------- 
     
         if(ReciveData(port_COM3, recivestr, SERIAL_MESSAGE_SIZE))
