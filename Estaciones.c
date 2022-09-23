@@ -41,21 +41,27 @@ void Estaciones(void)
     //SetTargetFPS(100);               // Set our game to run at 60 frames-per-second
 
 
-    PORT port_COM3 = OpenPort(6);
+    PORT port_COM3 = OpenPort(PORTCOM3);
     SetPortBoudRate(port_COM3, CP_BOUD_RATE_9600);
     char recivestr[SERIAL_MESSAGE_SIZE];
+    int count=0;
+    int flag=0;
+    char buffer[BUFFER_SIZE] ={0};
+    char* pitch_ptr=&buffer[4];
+    char* roll_ptr=&buffer[9];
+    char* yaw_ptr=&buffer[14];
 
 
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
-        ReciveData(port_COM3, recivestr, SERIAL_MESSAGE_SIZE); 
-        //printf("recivo:%s\n",recivestr);  
-        ptr_estacion[ESTACION1].pitch = atoi(recivestr);
-        
-
         // Update
         scrollingBack -= 0.5f;
         if (scrollingBack <= -background.width*2) scrollingBack = 0;
+
+
+
+
+
         //----------------------------------------------------------------------------------
         // Plane pitch (x-axis) controls
         if (IsKeyDown(KEY_DOWN)) 
@@ -119,7 +125,7 @@ void Estaciones(void)
 
             //ClearBackground(GetColor(0x052c46ff));
             ClearBackground(SKYBLUE);
-
+            //DrawTexture(background, 0, 0, WHITE);
             DrawTextureEx(background, (Vector2){ scrollingBack, 0 }, 0.0f, 2.0f, WHITE);
             DrawTextureEx(background, (Vector2){ background.width*2 + scrollingBack, 0 }, 0.0f, 2.0f, WHITE);
 
@@ -131,14 +137,14 @@ void Estaciones(void)
                 DrawModel(ptr_estacion[ESTACION2].model, ptr_estacion[ESTACION2].position, 0.5f, WHITE);   // Draw 3d model with texture
                 DrawModel(ptr_estacion[ESTACION3].model, ptr_estacion[ESTACION3].position, 0.5f, WHITE);   // Draw 3d model with texture
                 DrawModel(ptr_estacion[ESTACION4].model, ptr_estacion[ESTACION4].position, 0.5f, WHITE);   // Draw 3d model with texture
-                DrawGrid(GRID_SLICES, (float)GRID_SPACING);
+                //DrawGrid(GRID_SLICES, (float)GRID_SPACING);
                     
             EndMode3D();
             DrawFPS(50, 50);
             // Draw controls info
             // DrawRectangle(30, 370, 260, 70, Fade(GREEN, 0.5f));
             // DrawRectangleLines(30, 370, 260, 70, Fade(DARKGREEN, 0.5f));
-             DrawText(recivestr, 100, 5, 50, DARKGRAY);
+             DrawText(pitch_ptr, 100, 5, 50, DARKGRAY);
             // DrawText("Roll controlled with: KEY_LEFT / KEY_RIGHT", 40, 400, 10, DARKGRAY);
             // DrawText("Yaw controlled with: KEY_A / KEY_S", 40, 420, 10, DARKGRAY);
 
@@ -147,6 +153,34 @@ void Estaciones(void)
         EndDrawing();
         //---------------------------------------------------------------------------------- 
     
+        if(ReciveData(port_COM3, recivestr, SERIAL_MESSAGE_SIZE))
+        {
+            if(recivestr[0]=='A')
+            {
+                count=0;
+                flag=1;
+            } 
+            if(flag)
+            {
+            buffer[count]=recivestr[0];
+            count++;
+            if(count==BUFFER_SIZE)
+            {
+                ptr_estacion[ESTACION1].pitch = atoi(pitch_ptr);
+                ptr_estacion[ESTACION1].roll = atoi(roll_ptr);
+                ptr_estacion[ESTACION1].yaw = atoi(yaw_ptr);
+                count=0;
+                flag=0;
+            }
+            }
+
+        }
+
+
+
+
+
+
     }
     // De-Initialization
     //--------------------------------------------------------------------------------------

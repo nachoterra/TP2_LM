@@ -12,8 +12,16 @@
 #define DIST_PLANE 75 
 #define S_WIDTH 1200
 #define S_HEIGHT 700
-#define SERIAL_MESSAGE_SIZE 5
-
+#define SERIAL_MESSAGE_SIZE 1
+#define PORTCOM1 1
+#define PORTCOM2 2
+#define PORTCOM3 3
+#define PORTCOM4 4
+#define PORTCOM5 5
+#define PORTCOM6 6
+#define PORTCOM7 7
+#define BUFFER_SIZE 18
+//AG1P0000R0000Y0000T
 enum Estaciones
 {
     ESTACION0,
