@@ -38,17 +38,21 @@ void Estaciones(void)
     ptr_estacion = Estacion_init(ESTACION4,ptr_estacion);
 
 
-    SetTargetFPS(100);               // Set our game to run at 60 frames-per-second
+    //SetTargetFPS(100);               // Set our game to run at 60 frames-per-second
 
 
-    PORT port_COM3 = OpenPort(3);
+    PORT port_COM3 = OpenPort(6);
+    SetPortBoudRate(port_COM3, CP_BOUD_RATE_9600);
     char recivestr[SERIAL_MESSAGE_SIZE];
 
 
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         ReciveData(port_COM3, recivestr, SERIAL_MESSAGE_SIZE); 
-        //printf("recivo:%s\n",recivestr);   
+        //printf("recivo:%s\n",recivestr);  
+        ptr_estacion[ESTACION1].pitch = atoi(recivestr);
+        
+
         // Update
         scrollingBack -= 0.5f;
         if (scrollingBack <= -background.width*2) scrollingBack = 0;
@@ -134,7 +138,7 @@ void Estaciones(void)
             // Draw controls info
             // DrawRectangle(30, 370, 260, 70, Fade(GREEN, 0.5f));
             // DrawRectangleLines(30, 370, 260, 70, Fade(DARKGREEN, 0.5f));
-            // DrawText("Pitch controlled with: KEY_UP / KEY_DOWN", 40, 380, 10, DARKGRAY);
+             DrawText(recivestr, 100, 5, 50, DARKGRAY);
             // DrawText("Roll controlled with: KEY_LEFT / KEY_RIGHT", 40, 400, 10, DARKGRAY);
             // DrawText("Yaw controlled with: KEY_A / KEY_S", 40, 420, 10, DARKGRAY);
 

@@ -12,7 +12,7 @@
 #define DIST_PLANE 75 
 #define S_WIDTH 1200
 #define S_HEIGHT 700
-#define SERIAL_MESSAGE_SIZE 80
+#define SERIAL_MESSAGE_SIZE 5
 
 enum Estaciones
 {
