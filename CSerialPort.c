@@ -162,7 +162,7 @@ int SendData(PORT com_port, const char * data)
 
 int ReciveData(PORT com_port, char * data,int len)
 {
-	DWORD dwEventMask;
+	//DWORD dwEventMask;
 	DWORD NoBytesRead;
 	BOOL Status;
 	// BOOL Status = WaitCommEvent(com_port, &dwEventMask, NULL);

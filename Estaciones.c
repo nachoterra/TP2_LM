@@ -6,20 +6,27 @@
 
 static Estacion* Estacion_init(int number, Estacion* ptr_estacion);
 static void matrixrotation(int number, Estacion* ptr_estacion);
+static void keyboard_control(Estacion* ptr_estacion);
 
 void Estaciones(void)
 {
+    //audio
+    InitAudioDevice();
+    Music music = LoadMusicStream("AUDIO/audio.mp3");
+    PlayMusicStream(music);
+    float timePlayed =0.0f;
+    bool pause = false;
+
+
     // Initialization
     //--------------------------------------------------------------------------------------
     const int screenWidth = S_WIDTH;
     const int screenHeight = S_HEIGHT;
-
     //SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(screenWidth, screenHeight, "ESTACIONES");
-    
 
     Camera camera = { 0 };
-    camera.position = (Vector3){ -200.0f, 150.0f, 300.0f };// Camera position perspective
+    camera.position = (Vector3){ 0.0f, 150.0f, 300.0f };// Camera position perspective
     camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      // Camera looking at point
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
     camera.fovy = 30.0f;                                // Camera field-of-view Y
@@ -42,7 +49,7 @@ void Estaciones(void)
     ptr_estacion = Estacion_init(ESTACION4,ptr_estacion);
 
 
-    SetTargetFPS(100);               // Set our game to run at 60 frames-per-second
+    
 
 
     PORT port_COM3 = OpenPort(PORTCOM4);
@@ -68,91 +75,36 @@ void Estaciones(void)
 
 
 
+    SetTargetFPS(100);               // Set our game to run at 60 frames-per-second
 
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
-        // Update
+        //audio update
+        UpdateMusicStream(music);
+        // Pause/Resume music playing
+        if (IsKeyPressed(KEY_P))
+        {
+            pause = !pause;
+
+            if (pause) PauseMusicStream(music);
+            else ResumeMusicStream(music);
+        }
+        // Get normalized time played for current music stream
+        timePlayed = GetMusicTimePlayed(music)/GetMusicTimeLength(music);
+
+        if (timePlayed > 1.0f) timePlayed = 1.0f;   // Make sure time played is no longer than music
+        //----------------------------------------------------------------------------------
+
+
+        // Update background
         scrollingBack -= 0.5f;
         if (scrollingBack <= -background.width*2) scrollingBack = 0;
 
 
+        //mueve los aviones con las flechitas y A y S
+        keyboard_control(ptr_estacion);
 
 
-
-        //----------------------------------------------------------------------------------
-        // Plane pitch (x-axis) controls
-        if (IsKeyDown(KEY_UP)) 
-        {
-            ptr_estacion[ESTACION0].pitch += 1.0f;
-            ptr_estacion[ESTACION1].pitch += 1.0f;
-            ptr_estacion[ESTACION2].pitch += 1.0f;
-            ptr_estacion[ESTACION3].pitch += 1.0f;
-            ptr_estacion[ESTACION4].pitch += 1.0f;
-        }
-        else if (IsKeyDown(KEY_DOWN)) 
-        {
-            ptr_estacion[ESTACION0].pitch -= 1.0f;
-            ptr_estacion[ESTACION1].pitch -= 1.0f;
-            ptr_estacion[ESTACION2].pitch -= 1.0f;
-            ptr_estacion[ESTACION3].pitch -= 1.0f;
-            ptr_estacion[ESTACION4].pitch -= 1.0f;
-
-        }
-        // else
-        // {
-        //     if (pitch > 0.3f) pitch -= 0.3f;
-        //     else if (pitch < -0.3f) pitch += 0.3f;
-        // }
-
-        // Plane yaw (y-axis) controls
-        if (IsKeyDown(KEY_A)) 
-        {
-            ptr_estacion[ESTACION0].yaw += 1.0f;
-            ptr_estacion[ESTACION1].yaw += 1.0f;
-            ptr_estacion[ESTACION2].yaw += 1.0f;
-            ptr_estacion[ESTACION3].yaw += 1.0f;
-            ptr_estacion[ESTACION4].yaw += 1.0f;            
-
-        }
-        else if (IsKeyDown(KEY_S))
-        { 
-            ptr_estacion[ESTACION0].yaw -= 1.0f;
-            ptr_estacion[ESTACION1].yaw -= 1.0f;
-            ptr_estacion[ESTACION2].yaw -= 1.0f;
-            ptr_estacion[ESTACION3].yaw -= 1.0f;
-            ptr_estacion[ESTACION4].yaw -= 1.0f;
-        }
-        // else
-        // {
-        //     if (yaw > 0.0f) yaw -= 0.5f;
-        //     else if (yaw < 0.0f) yaw += 0.5f;
-        // }
-
-        // Plane roll (z-axis) controls
-        if (IsKeyDown(KEY_RIGHT)) 
-        {
-        ptr_estacion[ESTACION0].roll += 1.0f;
-        ptr_estacion[ESTACION1].roll += 1.0f;
-        ptr_estacion[ESTACION2].roll += 1.0f;
-        ptr_estacion[ESTACION3].roll += 1.0f;
-        ptr_estacion[ESTACION4].roll += 1.0f;            
-
-        
-        }
-        else if (IsKeyDown(KEY_LEFT)) 
-        {
-        ptr_estacion[ESTACION0].roll -= 1.0f;
-        ptr_estacion[ESTACION1].roll -= 1.0f;
-        ptr_estacion[ESTACION2].roll -= 1.0f;
-        ptr_estacion[ESTACION3].roll -= 1.0f;
-        ptr_estacion[ESTACION4].roll -= 1.0f;
-        }
-        // else
-
-        // {
-        //     if (roll > 0.0f) roll -= 0.5f;
-        //     else if (roll < 0.0f) roll += 0.5f;
-        // }
 
         matrixrotation(ESTACION0,  ptr_estacion);
         matrixrotation(ESTACION1,  ptr_estacion);
@@ -188,19 +140,19 @@ void Estaciones(void)
             }
 
         }
-        else
+        //else
         {
-            printf("hola");
+            printf("error recieve");
         }
 
-
+        background.id=3;
 
 
 
 
         
          
-       // ptr_estacion[ESTACION0].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION0].pitch, DEG2RAD*ptr_estacion[ESTACION0].yaw, DEG2RAD*ptr_estacion[ESTACION0].roll });
+       //ptr_estacion[ESTACION0].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION0].pitch, DEG2RAD*ptr_estacion[ESTACION0].yaw, DEG2RAD*ptr_estacion[ESTACION0].roll });
         // ptr_estacion[ESTACION1].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION1].pitch, DEG2RAD*ptr_estacion[ESTACION1].yaw, DEG2RAD*ptr_estacion[ESTACION1].roll });
         // ptr_estacion[ESTACION2].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION2].pitch, DEG2RAD*ptr_estacion[ESTACION2].yaw, DEG2RAD*ptr_estacion[ESTACION2].roll });
         // ptr_estacion[ESTACION3].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION3].pitch, DEG2RAD*ptr_estacion[ESTACION3].yaw, DEG2RAD*ptr_estacion[ESTACION3].roll }); 
@@ -260,6 +212,10 @@ void Estaciones(void)
     //CloseWindow();          // Close window and OpenGL context
 
     UnloadTexture(background);  // Unload background texture
+
+    UnloadMusicStream(music);   // Unload music stream buffers from RAM
+
+    CloseAudioDevice();         // Close audio device (music streaming is automatically stopped)
     //--------------------------------------------------------------------------------------
 
     //return 0;    
@@ -388,4 +344,82 @@ static void matrixrotation(int number, Estacion* ptr_estacion)
     // }
 
     ptr_estacion[number].model.transform = matrizFINAL;
+}
+
+static void keyboard_control(Estacion* ptr_estacion)
+{
+        //----------------------------------------------------------------------------------
+        // Plane pitch (x-axis) controls
+        if (IsKeyDown(KEY_UP)) 
+        {
+            ptr_estacion[ESTACION0].pitch += 1.0f;
+            ptr_estacion[ESTACION1].pitch += 1.0f;
+            ptr_estacion[ESTACION2].pitch += 1.0f;
+            ptr_estacion[ESTACION3].pitch += 1.0f;
+            ptr_estacion[ESTACION4].pitch += 1.0f;
+        }
+        else if (IsKeyDown(KEY_DOWN)) 
+        {
+            ptr_estacion[ESTACION0].pitch -= 1.0f;
+            ptr_estacion[ESTACION1].pitch -= 1.0f;
+            ptr_estacion[ESTACION2].pitch -= 1.0f;
+            ptr_estacion[ESTACION3].pitch -= 1.0f;
+            ptr_estacion[ESTACION4].pitch -= 1.0f;
+
+        }
+        // else
+        // {
+        //     if (pitch > 0.3f) pitch -= 0.3f;
+        //     else if (pitch < -0.3f) pitch += 0.3f;
+        // }
+
+        // Plane yaw (y-axis) controls
+        if (IsKeyDown(KEY_A)) 
+        {
+            ptr_estacion[ESTACION0].yaw += 1.0f;
+            ptr_estacion[ESTACION1].yaw += 1.0f;
+            ptr_estacion[ESTACION2].yaw += 1.0f;
+            ptr_estacion[ESTACION3].yaw += 1.0f;
+            ptr_estacion[ESTACION4].yaw += 1.0f;            
+
+        }
+        else if (IsKeyDown(KEY_S))
+        { 
+            ptr_estacion[ESTACION0].yaw -= 1.0f;
+            ptr_estacion[ESTACION1].yaw -= 1.0f;
+            ptr_estacion[ESTACION2].yaw -= 1.0f;
+            ptr_estacion[ESTACION3].yaw -= 1.0f;
+            ptr_estacion[ESTACION4].yaw -= 1.0f;
+        }
+        // else
+        // {
+        //     if (yaw > 0.0f) yaw -= 0.5f;
+        //     else if (yaw < 0.0f) yaw += 0.5f;
+        // }
+
+        // Plane roll (z-axis) controls
+        if (IsKeyDown(KEY_RIGHT)) 
+        {
+        ptr_estacion[ESTACION0].roll += 1.0f;
+        ptr_estacion[ESTACION1].roll += 1.0f;
+        ptr_estacion[ESTACION2].roll += 1.0f;
+        ptr_estacion[ESTACION3].roll += 1.0f;
+        ptr_estacion[ESTACION4].roll += 1.0f;            
+
+        
+        }
+        else if (IsKeyDown(KEY_LEFT)) 
+        {
+        ptr_estacion[ESTACION0].roll -= 1.0f;
+        ptr_estacion[ESTACION1].roll -= 1.0f;
+        ptr_estacion[ESTACION2].roll -= 1.0f;
+        ptr_estacion[ESTACION3].roll -= 1.0f;
+        ptr_estacion[ESTACION4].roll -= 1.0f;
+        }
+        // else
+
+        // {
+        //     if (roll > 0.0f) roll -= 0.5f;
+        //     else if (roll < 0.0f) roll += 0.5f;
+        // }    
 }
