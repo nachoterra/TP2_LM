@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
+//#include <pthread.h>
 
 
 #include "C:/raylib/raylib/src/raylib.h"
@@ -10,7 +10,7 @@
 
 #define GRID_SLICES 40
 #define GRID_SPACING 5
-#define DIST_PLANE 75 
+#define DIST_PLANE 90 
 #define S_WIDTH 1200
 #define S_HEIGHT 700
 #define SERIAL_MESSAGE_SIZE 1
@@ -40,6 +40,7 @@ typedef struct Estacion {
     float roll;            // rolido
     float yaw;            // orientacion
     Vector3 position;     //posicion
+    Vector2 screen_position; 
 } Estacion;
 
 

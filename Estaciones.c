@@ -7,6 +7,7 @@
 static Estacion* Estacion_init(int number, Estacion* ptr_estacion);
 static void matrixrotation(int number, Estacion* ptr_estacion);
 static void keyboard_control(Estacion* ptr_estacion);
+static float check_angle(float number,int flag);
 
 void Estaciones(void)
 {
@@ -25,14 +26,16 @@ void Estaciones(void)
     //SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(screenWidth, screenHeight, "ESTACIONES");
 
+    
+
     Camera camera = { 0 };
-    camera.position = (Vector3){ 0.0f, 150.0f, 300.0f };// Camera position perspective
+    camera.position = (Vector3){ 0.0f, 200.0f, 300.0f };// Camera position perspective
     camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      // Camera looking at point
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
     camera.fovy = 30.0f;                                // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE;             // Camera type    
 
-
+    SetCameraMode(camera, CAMERA_FREE); // Set a free camera mode
 
     //fondo
     Texture2D background = LoadTexture("resources/background/sky2.png");
@@ -79,6 +82,14 @@ void Estaciones(void)
 
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
+
+        if(IsKeyPressed(KEY_F11))
+        {
+            ToggleFullscreen();
+        }
+
+
+
         //audio update
         UpdateMusicStream(music);
         // Pause/Resume music playing
@@ -99,6 +110,8 @@ void Estaciones(void)
         // Update background
         scrollingBack -= 0.5f;
         if (scrollingBack <= -background.width*2) scrollingBack = 0;
+
+        UpdateCamera(&camera);
 
 
         //mueve los aviones con las flechitas y A y S
@@ -131,9 +144,9 @@ void Estaciones(void)
             count++;
             if(count==BUFFER_SIZE)
             {
-                ptr_estacion[ESTACION1].pitch = atoi(pitch_ptr);
-                ptr_estacion[ESTACION1].roll = atoi(roll_ptr);
-                ptr_estacion[ESTACION1].yaw = atoi(yaw_ptr);
+               // ptr_estacion[ESTACION1].pitch = atoi(pitch_ptr);
+                //ptr_estacion[ESTACION1].roll = atoi(roll_ptr);
+                //ptr_estacion[ESTACION1].yaw = atoi(yaw_ptr);
                 count=0;
                 flag=0;
             }
@@ -158,6 +171,12 @@ void Estaciones(void)
         // ptr_estacion[ESTACION3].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION3].pitch, DEG2RAD*ptr_estacion[ESTACION3].yaw, DEG2RAD*ptr_estacion[ESTACION3].roll }); 
         // ptr_estacion[ESTACION4].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION4].pitch, DEG2RAD*ptr_estacion[ESTACION4].yaw, DEG2RAD*ptr_estacion[ESTACION4].roll });
     
+        // Calculate cube screen space position (with a little offset to be in top)
+        ptr_estacion[ESTACION0].screen_position = GetWorldToScreen((Vector3){ptr_estacion[ESTACION0].position.x, ptr_estacion[ESTACION0].position.y + 2.5f, ptr_estacion[ESTACION0].position.z}, camera);
+        ptr_estacion[ESTACION1].screen_position = GetWorldToScreen((Vector3){ptr_estacion[ESTACION1].position.x, ptr_estacion[ESTACION1].position.y + 2.5f, ptr_estacion[ESTACION1].position.z}, camera);
+        ptr_estacion[ESTACION2].screen_position = GetWorldToScreen((Vector3){ptr_estacion[ESTACION2].position.x, ptr_estacion[ESTACION2].position.y + 2.5f, ptr_estacion[ESTACION2].position.z}, camera);
+        ptr_estacion[ESTACION3].screen_position = GetWorldToScreen((Vector3){ptr_estacion[ESTACION3].position.x, ptr_estacion[ESTACION3].position.y + 2.5f, ptr_estacion[ESTACION3].position.z}, camera);
+        ptr_estacion[ESTACION4].screen_position = GetWorldToScreen((Vector3){ptr_estacion[ESTACION4].position.x, ptr_estacion[ESTACION4].position.y + 2.5f, ptr_estacion[ESTACION4].position.z}, camera);
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
@@ -186,13 +205,47 @@ void Estaciones(void)
             // Draw controls info
             // DrawRectangle(30, 370, 260, 70, Fade(GREEN, 0.5f));
             // DrawRectangleLines(30, 370, 260, 70, Fade(DARKGREEN, 0.5f));
-             DrawText(pitch_v, 100, 5, 20, DARKGRAY);
-             DrawText(roll_v, 100, 20, 20, DARKGRAY);
-             DrawText(yaw_v, 105, 40, 20, DARKGRAY);
+
+            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION0,(int)ptr_estacion[ESTACION0].pitch,(int)ptr_estacion[ESTACION0].roll,(int)ptr_estacion[ESTACION0].yaw), (int)ptr_estacion[ESTACION0].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION0,(int)ptr_estacion[ESTACION0].pitch,(int)ptr_estacion[ESTACION0].roll,(int)ptr_estacion[ESTACION0].yaw), 10)/2, (int)ptr_estacion[ESTACION0].screen_position.y-210, 20, BLACK);
+            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION1,(int)ptr_estacion[ESTACION1].pitch,(int)ptr_estacion[ESTACION1].roll,(int)ptr_estacion[ESTACION1].yaw), (int)ptr_estacion[ESTACION1].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION1,(int)ptr_estacion[ESTACION1].pitch,(int)ptr_estacion[ESTACION1].roll,(int)ptr_estacion[ESTACION1].yaw), 20)/2, (int)ptr_estacion[ESTACION1].screen_position.y-210, 20, BLACK);
+            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION2,(int)ptr_estacion[ESTACION2].pitch,(int)ptr_estacion[ESTACION2].roll,(int)ptr_estacion[ESTACION2].yaw), (int)ptr_estacion[ESTACION2].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION2,(int)ptr_estacion[ESTACION2].pitch,(int)ptr_estacion[ESTACION2].roll,(int)ptr_estacion[ESTACION2].yaw), 20)/2, (int)ptr_estacion[ESTACION2].screen_position.y-210, 20, BLACK);
+            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION3,(int)ptr_estacion[ESTACION3].pitch,(int)ptr_estacion[ESTACION3].roll,(int)ptr_estacion[ESTACION3].yaw), (int)ptr_estacion[ESTACION3].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION3,(int)ptr_estacion[ESTACION3].pitch,(int)ptr_estacion[ESTACION3].roll,(int)ptr_estacion[ESTACION3].yaw), 20)/2, (int)ptr_estacion[ESTACION3].screen_position.y-210, 20, BLACK);
+            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION4,(int)ptr_estacion[ESTACION4].pitch,(int)ptr_estacion[ESTACION4].roll,(int)ptr_estacion[ESTACION4].yaw), (int)ptr_estacion[ESTACION4].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION4,(int)ptr_estacion[ESTACION4].pitch,(int)ptr_estacion[ESTACION4].roll,(int)ptr_estacion[ESTACION4].yaw), 20)/2, (int)ptr_estacion[ESTACION4].screen_position.y-210, 20, BLACK);
+
+            //DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION0,(int)ptr_estacion[ESTACION0].pitch,(int)ptr_estacion[ESTACION0].roll,(int)ptr_estacion[ESTACION0].yaw), 200, 400, 20, BLACK);
+            // DrawText(TextFormat("PITCH: %04i",(int)ptr_estacion[ESTACION0].pitch ), 200, 420, 20, BLACK);
+            // DrawText(TextFormat("ROLL:   %04i",(int)ptr_estacion[ESTACION0].roll ), 200, 440, 20, BLACK);
+            // DrawText(TextFormat("YAW:    %04i",(int)ptr_estacion[ESTACION0].yaw ), 200, 460, 20, BLACK);
+
+            // DrawText(TextFormat("ESTACION: %01i",ESTACION1 ), 860, 400, 20, BLACK);
+            // DrawText(TextFormat("PITCH: %04i",(int)ptr_estacion[ESTACION1].pitch ), 860, 420, 20, BLACK);
+            // DrawText(TextFormat("ROLL:   %04i",(int)ptr_estacion[ESTACION1].roll ), 860, 440, 20, BLACK);
+            // DrawText(TextFormat("YAW:    %04i",(int)ptr_estacion[ESTACION1].yaw ), 860, 460, 20, BLACK);
+
+
+            // DrawText(TextFormat("ESTACION: %01i",ESTACION2 ), 300, 30, 20, BLACK);
+            // DrawText(TextFormat("PITCH: %04i",(int)ptr_estacion[ESTACION2].pitch ), 300, 50, 20, BLACK);
+            // DrawText(TextFormat("ROLL:   %04i",(int)ptr_estacion[ESTACION2].roll ), 300, 70, 20, BLACK);
+            // DrawText(TextFormat("YAW:    %04i",(int)ptr_estacion[ESTACION2].yaw ), 300, 90, 20, BLACK);
+
+            // DrawText(TextFormat("ESTACION: %01i",ESTACION3 ), 535, 190, 20, BLACK);
+            // DrawText(TextFormat("PITCH: %04i",(int)ptr_estacion[ESTACION3].pitch ), 535, 210, 20, BLACK);
+            // DrawText(TextFormat("ROLL:   %04i",(int)ptr_estacion[ESTACION3].roll ), 535, 230, 20, BLACK);
+            // DrawText(TextFormat("YAW:    %04i",(int)ptr_estacion[ESTACION3].yaw ), 535, 250, 20, BLACK);
+
+
+            // DrawText(TextFormat("ESTACION: %01i",ESTACION4 ), 785, 30, 20, BLACK);
+            // DrawText(TextFormat("PITCH: %04i",(int)ptr_estacion[ESTACION4].pitch ), 785, 50, 20, BLACK);
+            // DrawText(TextFormat("ROLL:   %04i",(int)ptr_estacion[ESTACION4].roll ), 785, 70, 20, BLACK);
+            // DrawText(TextFormat("YAW:    %04i",(int)ptr_estacion[ESTACION4].yaw ), 785, 90, 20, BLACK);
+
             // DrawText("Roll controlled with: KEY_LEFT / KEY_RIGHT", 40, 400, 10, DARKGRAY);
             // DrawText("Yaw controlled with: KEY_A / KEY_S", 40, 420, 10, DARKGRAY);
 
             // DrawText("(c) WWI Plane Model created by GiaHanLam", screenWidth - 240, screenHeight - 20, 10, DARKGRAY);
+
+            //com_port= GuiTextInputBox((Rectangle){600,40,120,20}, "COM","Enter COM number","OK",NULL,50,NULL);
+            
 
         EndDrawing();
 
@@ -236,20 +289,25 @@ static Estacion* Estacion_init(int number, Estacion* ptr_estacion)
     ptr_estacion[number].yaw = 0.0f;
     switch(number)
     {
-        case ESTACION0:
+        case ESTACION3:
             ptr_estacion[number].position = (Vector3){ 0.0f, 0.0f, 0.0f };
+            ptr_estacion[number].screen_position = (Vector2){ 0.0f, 0.0f };
             break;
         case ESTACION1:
             ptr_estacion[number].position = (Vector3){ (float)DIST_PLANE, 0.0f, (float)DIST_PLANE };
+            ptr_estacion[number].screen_position = (Vector2){ (float)DIST_PLANE, 0.0f};
             break;
         case ESTACION2:
             ptr_estacion[number].position = (Vector3){ -(float)DIST_PLANE, 0.0f, -(float)DIST_PLANE };
-            break;
-        case ESTACION3:
-            ptr_estacion[number].position = (Vector3){ (float)DIST_PLANE, 0.0f, -(float)DIST_PLANE };
+            ptr_estacion[number].screen_position = (Vector2){ -(float)DIST_PLANE, 0.0f};
             break;
         case ESTACION4:
+            ptr_estacion[number].position = (Vector3){ (float)DIST_PLANE, 0.0f, -(float)DIST_PLANE };
+            ptr_estacion[number].screen_position = (Vector2){ (float)DIST_PLANE, 0.0f};
+            break;
+        case ESTACION0:
             ptr_estacion[number].position = (Vector3){ -(float)DIST_PLANE, 0.0f, (float)DIST_PLANE };
+            ptr_estacion[number].screen_position = (Vector2){ -(float)DIST_PLANE, 0.0f};
             break;   
         default:
             break;             
@@ -352,19 +410,20 @@ static void keyboard_control(Estacion* ptr_estacion)
         // Plane pitch (x-axis) controls
         if (IsKeyDown(KEY_UP)) 
         {
-            ptr_estacion[ESTACION0].pitch += 1.0f;
-            ptr_estacion[ESTACION1].pitch += 1.0f;
-            ptr_estacion[ESTACION2].pitch += 1.0f;
-            ptr_estacion[ESTACION3].pitch += 1.0f;
-            ptr_estacion[ESTACION4].pitch += 1.0f;
+            ptr_estacion[ESTACION0].pitch =check_angle(ptr_estacion[ESTACION0].pitch,TRUE);
+            ptr_estacion[ESTACION1].pitch =check_angle(ptr_estacion[ESTACION1].pitch,TRUE);
+            ptr_estacion[ESTACION2].pitch =check_angle(ptr_estacion[ESTACION2].pitch,TRUE);
+            ptr_estacion[ESTACION3].pitch =check_angle(ptr_estacion[ESTACION3].pitch,TRUE);
+            ptr_estacion[ESTACION4].pitch =check_angle(ptr_estacion[ESTACION4].pitch,TRUE);
+
         }
         else if (IsKeyDown(KEY_DOWN)) 
         {
-            ptr_estacion[ESTACION0].pitch -= 1.0f;
-            ptr_estacion[ESTACION1].pitch -= 1.0f;
-            ptr_estacion[ESTACION2].pitch -= 1.0f;
-            ptr_estacion[ESTACION3].pitch -= 1.0f;
-            ptr_estacion[ESTACION4].pitch -= 1.0f;
+            ptr_estacion[ESTACION0].pitch =check_angle(ptr_estacion[ESTACION0].pitch,FALSE);
+            ptr_estacion[ESTACION1].pitch =check_angle(ptr_estacion[ESTACION1].pitch,FALSE);
+            ptr_estacion[ESTACION2].pitch =check_angle(ptr_estacion[ESTACION2].pitch,FALSE);
+            ptr_estacion[ESTACION3].pitch =check_angle(ptr_estacion[ESTACION3].pitch,FALSE);
+            ptr_estacion[ESTACION4].pitch =check_angle(ptr_estacion[ESTACION4].pitch,FALSE);
 
         }
         // else
@@ -376,20 +435,21 @@ static void keyboard_control(Estacion* ptr_estacion)
         // Plane yaw (y-axis) controls
         if (IsKeyDown(KEY_A)) 
         {
-            ptr_estacion[ESTACION0].yaw += 1.0f;
-            ptr_estacion[ESTACION1].yaw += 1.0f;
-            ptr_estacion[ESTACION2].yaw += 1.0f;
-            ptr_estacion[ESTACION3].yaw += 1.0f;
-            ptr_estacion[ESTACION4].yaw += 1.0f;            
+            ptr_estacion[ESTACION0].yaw =check_angle(ptr_estacion[ESTACION0].yaw,TRUE);
+            ptr_estacion[ESTACION1].yaw =check_angle(ptr_estacion[ESTACION1].yaw,TRUE);
+            ptr_estacion[ESTACION2].yaw =check_angle(ptr_estacion[ESTACION2].yaw,TRUE);
+            ptr_estacion[ESTACION3].yaw =check_angle(ptr_estacion[ESTACION3].yaw,TRUE);
+            ptr_estacion[ESTACION4].yaw =check_angle(ptr_estacion[ESTACION4].yaw,TRUE);            
 
         }
         else if (IsKeyDown(KEY_S))
         { 
-            ptr_estacion[ESTACION0].yaw -= 1.0f;
-            ptr_estacion[ESTACION1].yaw -= 1.0f;
-            ptr_estacion[ESTACION2].yaw -= 1.0f;
-            ptr_estacion[ESTACION3].yaw -= 1.0f;
-            ptr_estacion[ESTACION4].yaw -= 1.0f;
+            
+            ptr_estacion[ESTACION0].yaw =check_angle(ptr_estacion[ESTACION0].yaw,FALSE);
+            ptr_estacion[ESTACION1].yaw =check_angle(ptr_estacion[ESTACION1].yaw,FALSE);
+            ptr_estacion[ESTACION2].yaw =check_angle(ptr_estacion[ESTACION2].yaw,FALSE);
+            ptr_estacion[ESTACION3].yaw =check_angle(ptr_estacion[ESTACION3].yaw,FALSE);
+            ptr_estacion[ESTACION4].yaw =check_angle(ptr_estacion[ESTACION4].yaw,FALSE); 
         }
         // else
         // {
@@ -400,21 +460,21 @@ static void keyboard_control(Estacion* ptr_estacion)
         // Plane roll (z-axis) controls
         if (IsKeyDown(KEY_RIGHT)) 
         {
-        ptr_estacion[ESTACION0].roll += 1.0f;
-        ptr_estacion[ESTACION1].roll += 1.0f;
-        ptr_estacion[ESTACION2].roll += 1.0f;
-        ptr_estacion[ESTACION3].roll += 1.0f;
-        ptr_estacion[ESTACION4].roll += 1.0f;            
+            ptr_estacion[ESTACION0].roll =check_angle(ptr_estacion[ESTACION0].roll,TRUE);
+            ptr_estacion[ESTACION1].roll =check_angle(ptr_estacion[ESTACION1].roll,TRUE);
+            ptr_estacion[ESTACION2].roll =check_angle(ptr_estacion[ESTACION2].roll,TRUE);
+            ptr_estacion[ESTACION3].roll =check_angle(ptr_estacion[ESTACION3].roll,TRUE);
+            ptr_estacion[ESTACION4].roll =check_angle(ptr_estacion[ESTACION4].roll,TRUE);             
 
         
         }
         else if (IsKeyDown(KEY_LEFT)) 
         {
-        ptr_estacion[ESTACION0].roll -= 1.0f;
-        ptr_estacion[ESTACION1].roll -= 1.0f;
-        ptr_estacion[ESTACION2].roll -= 1.0f;
-        ptr_estacion[ESTACION3].roll -= 1.0f;
-        ptr_estacion[ESTACION4].roll -= 1.0f;
+            ptr_estacion[ESTACION0].roll =check_angle(ptr_estacion[ESTACION0].roll,FALSE);
+            ptr_estacion[ESTACION1].roll =check_angle(ptr_estacion[ESTACION1].roll,FALSE);
+            ptr_estacion[ESTACION2].roll =check_angle(ptr_estacion[ESTACION2].roll,FALSE);
+            ptr_estacion[ESTACION3].roll =check_angle(ptr_estacion[ESTACION3].roll,FALSE);
+            ptr_estacion[ESTACION4].roll =check_angle(ptr_estacion[ESTACION4].roll,FALSE);   
         }
         // else
 
@@ -422,4 +482,25 @@ static void keyboard_control(Estacion* ptr_estacion)
         //     if (roll > 0.0f) roll -= 0.5f;
         //     else if (roll < 0.0f) roll += 0.5f;
         // }    
+}
+
+static float check_angle(float number, int flag)
+{
+    if(flag)
+    {
+        if(number == 180.0f)
+        {
+            number= -179.0f;
+        }            
+        number += 1.0f;
+    }
+    else
+    {
+        if(number == -179.0f)
+        {
+            number= 180.0f;
+        }            
+        number -= 1.0f;
+    }
+    return number;
 }
