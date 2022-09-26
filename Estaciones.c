@@ -508,7 +508,7 @@ static float check_angle(float number, int flag)
 {
     if(flag)
     {
-        if(number == 180.0f)
+        if(number >= 180.0f)
         {
             number= -179.0f;
         }            
@@ -516,7 +516,7 @@ static float check_angle(float number, int flag)
     }
     else
     {
-        if(number == -179.0f)
+        if(number <= -179.0f)
         {
             number= 180.0f;
         }            
