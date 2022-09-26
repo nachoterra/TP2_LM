@@ -1,6 +1,3 @@
-
-
-
 #include "Estaciones.h"
 
 
@@ -11,38 +8,48 @@ static float check_angle(float number,int flag);
 
 void Estaciones(void)
 {
-    //audio
-    InitAudioDevice();
-    Music music = LoadMusicStream("AUDIO/audio.mp3");
-    PlayMusicStream(music);
-    float timePlayed =0.0f;
-    bool pause = false;
-
-
-    // Initialization
-    //--------------------------------------------------------------------------------------
+    // ----------------------------Initialization--------------------------------------------------------------
+    
+    //-------------------------------PANTALLA------------------------------------------------------------------
     const int screenWidth = S_WIDTH;
     const int screenHeight = S_HEIGHT;
     //SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     InitWindow(screenWidth, screenHeight, "ESTACIONES");
+    //---------------------------------------------------------------------------------------------------------
+
+    //---------------------------------AUDIO-------------------------------------------------------------------
+    InitAudioDevice();
+    Music music = LoadMusicStream("AUDIO/audio.mp3");
+    PlayMusicStream(music);
+    float timePlayed =0.0f;
+    bool music_pause = false;
+    //---------------------------------------------------------------------------------------------------------
+
+    //---------------------------------PAUSA-------------------------------------------------------------------
+    bool pause = false;
+    int framesCounter = 0;
+    //---------------------------------------------------------------------------------------------------------
+
+
 
     
-
+    //---------------------------------------CAMERA------------------------------------------------------------
+    bool camera_mode= false;
     Camera camera = { 0 };
     camera.position = (Vector3){ 0.0f, 200.0f, 300.0f };// Camera position perspective
     camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      // Camera looking at point
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
     camera.fovy = 30.0f;                                // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE;             // Camera type    
+    //---------------------------------------------------------------------------------------------------------
+    
 
-    SetCameraMode(camera, CAMERA_FREE); // Set a free camera mode
-
-    //fondo
+    //--------------------------------fondo--------------------------------------------------------------------
     Texture2D background = LoadTexture("resources/background/sky2.png");
     float scrollingBack = 0.0f;
-
+    //---------------------------------------------------------------------------------------------------------
     
-    //inicializa estaciones
+    //-------------------------------------Constructor estaciones----------------------------------------------
     Estacion *ptr_estacion=NULL;
     ptr_estacion = malloc(5 * sizeof(Estacion));
     ptr_estacion = Estacion_init(ESTACION0,ptr_estacion);
@@ -50,11 +57,11 @@ void Estaciones(void)
     ptr_estacion = Estacion_init(ESTACION2,ptr_estacion);
     ptr_estacion = Estacion_init(ESTACION3,ptr_estacion);
     ptr_estacion = Estacion_init(ESTACION4,ptr_estacion);
-
+    //---------------------------------------------------------------------------------------------------------
 
     
 
-
+    //-------------------------------------INICIALIZA PUERTO SERIE---------------------------------------------
     PORT port_COM3 = OpenPort(PORTCOM4);
     SetPortBoudRate(port_COM3, CP_BOUD_RATE_9600);
     char recivestr[SERIAL_MESSAGE_SIZE];
@@ -64,119 +71,154 @@ void Estaciones(void)
     char* pitch_ptr=&buffer[4];
     char* roll_ptr=&buffer[9];
     char* yaw_ptr=&buffer[14];
+    //---------------------------------------------------------------------------------------------------------
 
-
-                                     
-
-
-    char roll_v[4]={0};
-    char pitch_v[4]={0};
-    char yaw_v[4]={0};
+    //----------------------------------FRAMES POR SEGUNDO-----------------------------------------------------
+    SetTargetFPS(FPS);               // Set our game to run at 60 frames-per-second
+    //---------------------------------------------------------------------------------------------------------
 
 
 
-
-
-
-    SetTargetFPS(100);               // Set our game to run at 60 frames-per-second
-
+    //-----------------------------------------CICLO DEL PROGRAMA----------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------------------
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
-
+        //------------------------------------PANTALLA COMPLETA------------------------------------------------
         if(IsKeyPressed(KEY_F11))
         {
             ToggleFullscreen();
         }
+        //-----------------------------------------------------------------------------------------------------
 
-
-
-        //audio update
-        UpdateMusicStream(music);
-        // Pause/Resume music playing
-        if (IsKeyPressed(KEY_P))
+        
+        //-------------------------------------------CAMARA UPDATE----------------------------------------------------
+        // CAMBIA MODO DE CAMERA A CAMARA LIBRE
+        // SE MUEVE Y HACE ZOOM CON EL MOUSE
+        if(IsKeyPressed(KEY_F))
         {
-            pause = !pause;
+            camera_mode =!camera_mode;
+            if(camera_mode)
+            {
+                SetCameraMode(camera, CAMERA_FREE); // Set a free camera mode 
+            }
+            else
+            {
+                SetCameraMode(camera, CAMERA_CUSTOM); // Set a free camera mode
+            }
+            
+        }
+        //DEVUELVE LA CAMARA A POSICION INICIAL 
+        if (IsKeyDown('Z')) 
+        {
+            camera.position = (Vector3){ 0.0f, 200.0f, 300.0f };// Camera position perspective
+            camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      // Camera looking at point
+            camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
+            camera.fovy = 30.0f;                                // Camera field-of-view Y
+            camera.projection = CAMERA_PERSPECTIVE;             // Camera type 
+            
+        }
+        UpdateCamera(&camera);
+        //-----------------------------------------------------------------------------------------------------
 
-            if (pause) PauseMusicStream(music);
+
+
+        
+        //------------------------------AUDIO UPDATE-----------------------------------------------------------
+        UpdateMusicStream(music);
+
+        // Pause/Resume music playing
+        if (IsKeyPressed(KEY_M))
+        {
+            music_pause = !music_pause;
+
+            if (music_pause) PauseMusicStream(music);
             else ResumeMusicStream(music);
         }
         // Get normalized time played for current music stream
         timePlayed = GetMusicTimePlayed(music)/GetMusicTimeLength(music);
-
         if (timePlayed > 1.0f) timePlayed = 1.0f;   // Make sure time played is no longer than music
-        //----------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------------------------------
 
 
-        // Update background
+        //------------------------------------BACKGROPUND SCROLL-----------------------------------------------
         scrollingBack -= 0.5f;
         if (scrollingBack <= -background.width*2) scrollingBack = 0;
-
-        UpdateCamera(&camera);
-
-
-        //mueve los aviones con las flechitas y A y S
-        keyboard_control(ptr_estacion);
+        //-----------------------------------------------------------------------------------------------------
+        
 
 
 
+        //----------------------------------------PAUSA--------------------------------------------------------
+        if(IsKeyPressed(KEY_P))
+        {
+            pause= !pause;
+        }
+        
+        if(!pause)
+        {
+            //mueve los aviones con las flechitas y A y S
+            keyboard_control(ptr_estacion);
+        
+            //---------------------LEE PUERTO SERIE-----------------
+            if(ReciveData(port_COM3, recivestr, SERIAL_MESSAGE_SIZE))
+            {
+                if(recivestr[0]=='A')
+                {
+                    count=0;
+                    flag=1;
+                } 
+                if(flag)
+                {
+                buffer[count]=recivestr[0];
+                count++;
+                if(count==BUFFER_SIZE)
+                {
+                // ptr_estacion[ESTACION1].pitch = atoi(pitch_ptr);
+                    //ptr_estacion[ESTACION1].roll = atoi(roll_ptr);
+                    //ptr_estacion[ESTACION1].yaw = atoi(yaw_ptr);
+                    count=0;
+                    flag=0;
+                }
+                }
+
+            }
+            else
+            {
+                printf("error recieve");
+            }
+
+        }
+        else
+        {
+            framesCounter++;
+        }
+        //-----------------------------------------------------------------------------------------------------
+
+
+
+
+
+        background.id=3; // arregla problema de fondo
+
+        //-----------------------------------------ROTACION AVIONES--------------------------------------------
         matrixrotation(ESTACION0,  ptr_estacion);
         matrixrotation(ESTACION1,  ptr_estacion);
         matrixrotation(ESTACION2,  ptr_estacion);
         matrixrotation(ESTACION3,  ptr_estacion);
         matrixrotation(ESTACION4,  ptr_estacion);
-
-        itoa(ptr_estacion[ESTACION1].pitch,pitch_v,4);
-        itoa(ptr_estacion[ESTACION1].roll,roll_v,4);
-        itoa(ptr_estacion[ESTACION1].yaw,yaw_v,4);
-
-        //---------------------------------------------------------------------------------- 
-    
-        if(ReciveData(port_COM3, recivestr, SERIAL_MESSAGE_SIZE))
-        {
-            if(recivestr[0]=='A')
-            {
-                count=0;
-                flag=1;
-            } 
-            if(flag)
-            {
-            buffer[count]=recivestr[0];
-            count++;
-            if(count==BUFFER_SIZE)
-            {
-               // ptr_estacion[ESTACION1].pitch = atoi(pitch_ptr);
-                //ptr_estacion[ESTACION1].roll = atoi(roll_ptr);
-                //ptr_estacion[ESTACION1].yaw = atoi(yaw_ptr);
-                count=0;
-                flag=0;
-            }
-            }
-
-        }
-        //else
-        {
-            printf("error recieve");
-        }
-
-        background.id=3;
-
-
-
-
+        //-----------------------------------------------------------------------------------------------------
         
          
-       //ptr_estacion[ESTACION0].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION0].pitch, DEG2RAD*ptr_estacion[ESTACION0].yaw, DEG2RAD*ptr_estacion[ESTACION0].roll });
-        // ptr_estacion[ESTACION1].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION1].pitch, DEG2RAD*ptr_estacion[ESTACION1].yaw, DEG2RAD*ptr_estacion[ESTACION1].roll });
-        // ptr_estacion[ESTACION2].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION2].pitch, DEG2RAD*ptr_estacion[ESTACION2].yaw, DEG2RAD*ptr_estacion[ESTACION2].roll });
-        // ptr_estacion[ESTACION3].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION3].pitch, DEG2RAD*ptr_estacion[ESTACION3].yaw, DEG2RAD*ptr_estacion[ESTACION3].roll }); 
-        // ptr_estacion[ESTACION4].model.transform = MatrixRotateXYZ((Vector3){ DEG2RAD*ptr_estacion[ESTACION4].pitch, DEG2RAD*ptr_estacion[ESTACION4].yaw, DEG2RAD*ptr_estacion[ESTACION4].roll });
+       
     
-        // Calculate cube screen space position (with a little offset to be in top)
+        // Calculate planes space position (with a little offset to be in top)
         ptr_estacion[ESTACION0].screen_position = GetWorldToScreen((Vector3){ptr_estacion[ESTACION0].position.x, ptr_estacion[ESTACION0].position.y + 2.5f, ptr_estacion[ESTACION0].position.z}, camera);
         ptr_estacion[ESTACION1].screen_position = GetWorldToScreen((Vector3){ptr_estacion[ESTACION1].position.x, ptr_estacion[ESTACION1].position.y + 2.5f, ptr_estacion[ESTACION1].position.z}, camera);
         ptr_estacion[ESTACION2].screen_position = GetWorldToScreen((Vector3){ptr_estacion[ESTACION2].position.x, ptr_estacion[ESTACION2].position.y + 2.5f, ptr_estacion[ESTACION2].position.z}, camera);
         ptr_estacion[ESTACION3].screen_position = GetWorldToScreen((Vector3){ptr_estacion[ESTACION3].position.x, ptr_estacion[ESTACION3].position.y + 2.5f, ptr_estacion[ESTACION3].position.z}, camera);
         ptr_estacion[ESTACION4].screen_position = GetWorldToScreen((Vector3){ptr_estacion[ESTACION4].position.x, ptr_estacion[ESTACION4].position.y + 2.5f, ptr_estacion[ESTACION4].position.z}, camera);
+        
+        
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
@@ -206,47 +248,25 @@ void Estaciones(void)
             // DrawRectangle(30, 370, 260, 70, Fade(GREEN, 0.5f));
             // DrawRectangleLines(30, 370, 260, 70, Fade(DARKGREEN, 0.5f));
 
-            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION0,(int)ptr_estacion[ESTACION0].pitch,(int)ptr_estacion[ESTACION0].roll,(int)ptr_estacion[ESTACION0].yaw), (int)ptr_estacion[ESTACION0].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION0,(int)ptr_estacion[ESTACION0].pitch,(int)ptr_estacion[ESTACION0].roll,(int)ptr_estacion[ESTACION0].yaw), 10)/2, (int)ptr_estacion[ESTACION0].screen_position.y-210, 20, BLACK);
-            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION1,(int)ptr_estacion[ESTACION1].pitch,(int)ptr_estacion[ESTACION1].roll,(int)ptr_estacion[ESTACION1].yaw), (int)ptr_estacion[ESTACION1].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION1,(int)ptr_estacion[ESTACION1].pitch,(int)ptr_estacion[ESTACION1].roll,(int)ptr_estacion[ESTACION1].yaw), 20)/2, (int)ptr_estacion[ESTACION1].screen_position.y-210, 20, BLACK);
-            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION2,(int)ptr_estacion[ESTACION2].pitch,(int)ptr_estacion[ESTACION2].roll,(int)ptr_estacion[ESTACION2].yaw), (int)ptr_estacion[ESTACION2].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION2,(int)ptr_estacion[ESTACION2].pitch,(int)ptr_estacion[ESTACION2].roll,(int)ptr_estacion[ESTACION2].yaw), 20)/2, (int)ptr_estacion[ESTACION2].screen_position.y-210, 20, BLACK);
-            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION3,(int)ptr_estacion[ESTACION3].pitch,(int)ptr_estacion[ESTACION3].roll,(int)ptr_estacion[ESTACION3].yaw), (int)ptr_estacion[ESTACION3].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION3,(int)ptr_estacion[ESTACION3].pitch,(int)ptr_estacion[ESTACION3].roll,(int)ptr_estacion[ESTACION3].yaw), 20)/2, (int)ptr_estacion[ESTACION3].screen_position.y-210, 20, BLACK);
-            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION4,(int)ptr_estacion[ESTACION4].pitch,(int)ptr_estacion[ESTACION4].roll,(int)ptr_estacion[ESTACION4].yaw), (int)ptr_estacion[ESTACION4].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION4,(int)ptr_estacion[ESTACION4].pitch,(int)ptr_estacion[ESTACION4].roll,(int)ptr_estacion[ESTACION4].yaw), 20)/2, (int)ptr_estacion[ESTACION4].screen_position.y-210, 20, BLACK);
-
-            //DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION0,(int)ptr_estacion[ESTACION0].pitch,(int)ptr_estacion[ESTACION0].roll,(int)ptr_estacion[ESTACION0].yaw), 200, 400, 20, BLACK);
-            // DrawText(TextFormat("PITCH: %04i",(int)ptr_estacion[ESTACION0].pitch ), 200, 420, 20, BLACK);
-            // DrawText(TextFormat("ROLL:   %04i",(int)ptr_estacion[ESTACION0].roll ), 200, 440, 20, BLACK);
-            // DrawText(TextFormat("YAW:    %04i",(int)ptr_estacion[ESTACION0].yaw ), 200, 460, 20, BLACK);
-
-            // DrawText(TextFormat("ESTACION: %01i",ESTACION1 ), 860, 400, 20, BLACK);
-            // DrawText(TextFormat("PITCH: %04i",(int)ptr_estacion[ESTACION1].pitch ), 860, 420, 20, BLACK);
-            // DrawText(TextFormat("ROLL:   %04i",(int)ptr_estacion[ESTACION1].roll ), 860, 440, 20, BLACK);
-            // DrawText(TextFormat("YAW:    %04i",(int)ptr_estacion[ESTACION1].yaw ), 860, 460, 20, BLACK);
+            //---------------ESCRIBE POSICIONES DE CADA AVION----------------------------------------------
+            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION0,(int)ptr_estacion[ESTACION0].pitch,(int)ptr_estacion[ESTACION0].roll,(int)ptr_estacion[ESTACION0].yaw), (int)ptr_estacion[ESTACION0].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION0,(int)ptr_estacion[ESTACION0].pitch,(int)ptr_estacion[ESTACION0].roll,(int)ptr_estacion[ESTACION0].yaw), 10)/2, (int)ptr_estacion[ESTACION0].screen_position.y-150, 10, BLACK);
+            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION1,(int)ptr_estacion[ESTACION1].pitch,(int)ptr_estacion[ESTACION1].roll,(int)ptr_estacion[ESTACION1].yaw), (int)ptr_estacion[ESTACION1].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION1,(int)ptr_estacion[ESTACION1].pitch,(int)ptr_estacion[ESTACION1].roll,(int)ptr_estacion[ESTACION1].yaw), 10)/2, (int)ptr_estacion[ESTACION1].screen_position.y-150, 10, BLACK);
+            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION2,(int)ptr_estacion[ESTACION2].pitch,(int)ptr_estacion[ESTACION2].roll,(int)ptr_estacion[ESTACION2].yaw), (int)ptr_estacion[ESTACION2].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION2,(int)ptr_estacion[ESTACION2].pitch,(int)ptr_estacion[ESTACION2].roll,(int)ptr_estacion[ESTACION2].yaw), 10)/2, (int)ptr_estacion[ESTACION2].screen_position.y-150, 10, BLACK);
+            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION3,(int)ptr_estacion[ESTACION3].pitch,(int)ptr_estacion[ESTACION3].roll,(int)ptr_estacion[ESTACION3].yaw), (int)ptr_estacion[ESTACION3].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION3,(int)ptr_estacion[ESTACION3].pitch,(int)ptr_estacion[ESTACION3].roll,(int)ptr_estacion[ESTACION3].yaw), 10)/2, (int)ptr_estacion[ESTACION3].screen_position.y-150, 10, BLACK);
+            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION4,(int)ptr_estacion[ESTACION4].pitch,(int)ptr_estacion[ESTACION4].roll,(int)ptr_estacion[ESTACION4].yaw), (int)ptr_estacion[ESTACION4].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION4,(int)ptr_estacion[ESTACION4].pitch,(int)ptr_estacion[ESTACION4].roll,(int)ptr_estacion[ESTACION4].yaw), 10)/2, (int)ptr_estacion[ESTACION4].screen_position.y-150, 10, BLACK);
+            
+            // On pause, we draw a blinking message
+            if (pause && ((framesCounter/30)%2)) DrawText("PAUSED", screenWidth/2-MeasureText("PAUSED",40)/2, screenHeight/2, 40, GRAY);
 
 
-            // DrawText(TextFormat("ESTACION: %01i",ESTACION2 ), 300, 30, 20, BLACK);
-            // DrawText(TextFormat("PITCH: %04i",(int)ptr_estacion[ESTACION2].pitch ), 300, 50, 20, BLACK);
-            // DrawText(TextFormat("ROLL:   %04i",(int)ptr_estacion[ESTACION2].roll ), 300, 70, 20, BLACK);
-            // DrawText(TextFormat("YAW:    %04i",(int)ptr_estacion[ESTACION2].yaw ), 300, 90, 20, BLACK);
-
-            // DrawText(TextFormat("ESTACION: %01i",ESTACION3 ), 535, 190, 20, BLACK);
-            // DrawText(TextFormat("PITCH: %04i",(int)ptr_estacion[ESTACION3].pitch ), 535, 210, 20, BLACK);
-            // DrawText(TextFormat("ROLL:   %04i",(int)ptr_estacion[ESTACION3].roll ), 535, 230, 20, BLACK);
-            // DrawText(TextFormat("YAW:    %04i",(int)ptr_estacion[ESTACION3].yaw ), 535, 250, 20, BLACK);
 
 
-            // DrawText(TextFormat("ESTACION: %01i",ESTACION4 ), 785, 30, 20, BLACK);
-            // DrawText(TextFormat("PITCH: %04i",(int)ptr_estacion[ESTACION4].pitch ), 785, 50, 20, BLACK);
-            // DrawText(TextFormat("ROLL:   %04i",(int)ptr_estacion[ESTACION4].roll ), 785, 70, 20, BLACK);
-            // DrawText(TextFormat("YAW:    %04i",(int)ptr_estacion[ESTACION4].yaw ), 785, 90, 20, BLACK);
-
-            // DrawText("Roll controlled with: KEY_LEFT / KEY_RIGHT", 40, 400, 10, DARKGRAY);
-            // DrawText("Yaw controlled with: KEY_A / KEY_S", 40, 420, 10, DARKGRAY);
-
-            // DrawText("(c) WWI Plane Model created by GiaHanLam", screenWidth - 240, screenHeight - 20, 10, DARKGRAY);
+            
 
             //com_port= GuiTextInputBox((Rectangle){600,40,120,20}, "COM","Enter COM number","OK",NULL,50,NULL);
             
-
+            DrawText("(c) Laboratorio de Microprosesadores - Grupo 4", screenWidth - MeasureText("(c) Laboratorio de Microprosesadores - Grupo 4",10)-20, screenHeight - 20, 10, DARKGRAY);
+        
         EndDrawing();
 
 
@@ -262,7 +282,7 @@ void Estaciones(void)
     UnloadModel(ptr_estacion[ESTACION3].model);     // Unload model data
     UnloadModel(ptr_estacion[ESTACION4].model);     // Unload model data
     free(ptr_estacion);
-    //CloseWindow();          // Close window and OpenGL context
+    CloseWindow();          // Close window and OpenGL context
 
     UnloadTexture(background);  // Unload background texture
 

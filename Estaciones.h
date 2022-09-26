@@ -22,6 +22,7 @@
 #define PORTCOM6 6
 #define PORTCOM7 7
 #define BUFFER_SIZE 18
+#define FPS 100
 //AG1P0000R0000Y0000T
 enum Estaciones
 {
