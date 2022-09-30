@@ -22,7 +22,7 @@ void Estaciones(void)
     Music music = LoadMusicStream("AUDIO/audio.mp3");
     PlayMusicStream(music);
     float timePlayed =0.0f;
-    bool music_pause = false;
+    bool music_pause = true;
     //---------------------------------------------------------------------------------------------------------
 
     //---------------------------------PAUSA-------------------------------------------------------------------
@@ -131,9 +131,10 @@ void Estaciones(void)
         {
             music_pause = !music_pause;
 
-            if (music_pause) PauseMusicStream(music);
-            else ResumeMusicStream(music);
+
         }
+        if (music_pause) PauseMusicStream(music);
+        else ResumeMusicStream(music);        
         // Get normalized time played for current music stream
         timePlayed = GetMusicTimePlayed(music)/GetMusicTimeLength(music);
         if (timePlayed > 1.0f) timePlayed = 1.0f;   // Make sure time played is no longer than music
