@@ -23,6 +23,7 @@
 #define PORTCOM7 7
 #define BUFFER_SIZE 18
 #define FPS 60
+#define NUMBER_PLANES 6
 //AG1P0000R0000Y0000T
 enum Estaciones
 {
@@ -30,7 +31,8 @@ enum Estaciones
     ESTACION1,
     ESTACION2,
     ESTACION3,
-    ESTACION4
+    ESTACION4,
+    ESTACION5
 };
 
 

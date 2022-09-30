@@ -1,10 +1,14 @@
 #include "Estaciones.h"
 
 
-static Estacion* Estacion_init(int number, Estacion* ptr_estacion);
-static void matrixrotation(int number, Estacion* ptr_estacion);
+static Estacion* Estacion_init(Estacion* ptr_estacion);
+static Estacion* Estacion_kill(Estacion* ptr_estacion);
+static void matrixrotation(Estacion* ptr_estacion);
 static void keyboard_control(Estacion* ptr_estacion);
 static float check_angle(float number,int flag);
+static void text_position(Estacion* ptr_estacion,Camera camera);
+static void draw_models(Estacion* ptr_estacion);
+static void draw_models_text(Estacion* ptr_estacion);
 
 void Estaciones(void)
 {
@@ -51,12 +55,9 @@ void Estaciones(void)
     
     //-------------------------------------Constructor estaciones----------------------------------------------
     Estacion *ptr_estacion=NULL;
-    ptr_estacion = malloc(5 * sizeof(Estacion));
-    ptr_estacion = Estacion_init(ESTACION0,ptr_estacion);
-    ptr_estacion = Estacion_init(ESTACION1,ptr_estacion);
-    ptr_estacion = Estacion_init(ESTACION2,ptr_estacion);
-    ptr_estacion = Estacion_init(ESTACION3,ptr_estacion);
-    ptr_estacion = Estacion_init(ESTACION4,ptr_estacion);
+    ptr_estacion = malloc(NUMBER_PLANES * sizeof(Estacion));
+    ptr_estacion = Estacion_init(ptr_estacion);
+    
     //---------------------------------------------------------------------------------------------------------
 
     
@@ -202,23 +203,13 @@ void Estaciones(void)
         background.id=3; // arregla problema de fondo
 
         //-----------------------------------------ROTACION AVIONES--------------------------------------------
-        matrixrotation(ESTACION0,  ptr_estacion);
-        matrixrotation(ESTACION1,  ptr_estacion);
-        matrixrotation(ESTACION2,  ptr_estacion);
-        matrixrotation(ESTACION3,  ptr_estacion);
-        matrixrotation(ESTACION4,  ptr_estacion);
+        matrixrotation(ptr_estacion);
+  
         //-----------------------------------------------------------------------------------------------------
         
-         
-       
-    
         // Calculate planes space position (with a little offset to be in top)
-        ptr_estacion[ESTACION0].screen_position = GetWorldToScreen((Vector3){ptr_estacion[ESTACION0].position.x, ptr_estacion[ESTACION0].position.y + 2.5f, ptr_estacion[ESTACION0].position.z}, camera);
-        ptr_estacion[ESTACION1].screen_position = GetWorldToScreen((Vector3){ptr_estacion[ESTACION1].position.x, ptr_estacion[ESTACION1].position.y + 2.5f, ptr_estacion[ESTACION1].position.z}, camera);
-        ptr_estacion[ESTACION2].screen_position = GetWorldToScreen((Vector3){ptr_estacion[ESTACION2].position.x, ptr_estacion[ESTACION2].position.y + 2.5f, ptr_estacion[ESTACION2].position.z}, camera);
-        ptr_estacion[ESTACION3].screen_position = GetWorldToScreen((Vector3){ptr_estacion[ESTACION3].position.x, ptr_estacion[ESTACION3].position.y + 2.5f, ptr_estacion[ESTACION3].position.z}, camera);
-        ptr_estacion[ESTACION4].screen_position = GetWorldToScreen((Vector3){ptr_estacion[ESTACION4].position.x, ptr_estacion[ESTACION4].position.y + 2.5f, ptr_estacion[ESTACION4].position.z}, camera);
-        
+        text_position(ptr_estacion,camera);
+       
         
         // Draw
         //----------------------------------------------------------------------------------
@@ -232,13 +223,8 @@ void Estaciones(void)
 
             // Draw 3D model (recomended to draw 3D always before 2D)
             BeginMode3D(camera);
-
-                DrawModel( ptr_estacion[ESTACION0].model, ptr_estacion[ESTACION0].position, 0.5f, WHITE);   // Draw 3d model with texture
-                DrawModel(ptr_estacion[ESTACION1].model, ptr_estacion[ESTACION1].position, 0.5f, WHITE);   // Draw 3d model with texture
-                DrawModel(ptr_estacion[ESTACION2].model, ptr_estacion[ESTACION2].position, 0.5f, WHITE);   // Draw 3d model with texture
-                DrawModel(ptr_estacion[ESTACION3].model, ptr_estacion[ESTACION3].position, 0.5f, WHITE);   // Draw 3d model with texture
-                DrawModel(ptr_estacion[ESTACION4].model, ptr_estacion[ESTACION4].position, 0.5f, WHITE);   // Draw 3d model with texture
-               // DrawModelEx(ptr_estacion[ESTACION0].model,ptr_estacion[ESTACION0].position,(Vector3){ 1,1,1 },ptr_estacion[ESTACION4].pitch,(Vector3){ 0.5f,0.5f,0.5f }, WHITE);
+                draw_models(ptr_estacion);
+               
                 //DrawGrid(GRID_SLICES, (float)GRID_SPACING);
                 // DrawLine3D((Vector3){ 0,0,0 },(Vector3){ 100,0,0 },BLACK);   
                 // DrawLine3D((Vector3){ 0,0,0 },(Vector3){ 0,100,0 },MAROON);   
@@ -250,19 +236,10 @@ void Estaciones(void)
             // DrawRectangleLines(30, 370, 260, 70, Fade(DARKGREEN, 0.5f));
 
             //---------------ESCRIBE POSICIONES DE CADA AVION----------------------------------------------
-            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION0,(int)ptr_estacion[ESTACION0].pitch,(int)ptr_estacion[ESTACION0].roll,(int)ptr_estacion[ESTACION0].yaw), (int)ptr_estacion[ESTACION0].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION0,(int)ptr_estacion[ESTACION0].pitch,(int)ptr_estacion[ESTACION0].roll,(int)ptr_estacion[ESTACION0].yaw), 10)/2, (int)ptr_estacion[ESTACION0].screen_position.y-150, 10, BLACK);
-            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION1,(int)ptr_estacion[ESTACION1].pitch,(int)ptr_estacion[ESTACION1].roll,(int)ptr_estacion[ESTACION1].yaw), (int)ptr_estacion[ESTACION1].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION1,(int)ptr_estacion[ESTACION1].pitch,(int)ptr_estacion[ESTACION1].roll,(int)ptr_estacion[ESTACION1].yaw), 10)/2, (int)ptr_estacion[ESTACION1].screen_position.y-150, 10, BLACK);
-            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION2,(int)ptr_estacion[ESTACION2].pitch,(int)ptr_estacion[ESTACION2].roll,(int)ptr_estacion[ESTACION2].yaw), (int)ptr_estacion[ESTACION2].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION2,(int)ptr_estacion[ESTACION2].pitch,(int)ptr_estacion[ESTACION2].roll,(int)ptr_estacion[ESTACION2].yaw), 10)/2, (int)ptr_estacion[ESTACION2].screen_position.y-150, 10, BLACK);
-            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION3,(int)ptr_estacion[ESTACION3].pitch,(int)ptr_estacion[ESTACION3].roll,(int)ptr_estacion[ESTACION3].yaw), (int)ptr_estacion[ESTACION3].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION3,(int)ptr_estacion[ESTACION3].pitch,(int)ptr_estacion[ESTACION3].roll,(int)ptr_estacion[ESTACION3].yaw), 10)/2, (int)ptr_estacion[ESTACION3].screen_position.y-150, 10, BLACK);
-            DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION4,(int)ptr_estacion[ESTACION4].pitch,(int)ptr_estacion[ESTACION4].roll,(int)ptr_estacion[ESTACION4].yaw), (int)ptr_estacion[ESTACION4].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",ESTACION4,(int)ptr_estacion[ESTACION4].pitch,(int)ptr_estacion[ESTACION4].roll,(int)ptr_estacion[ESTACION4].yaw), 10)/2, (int)ptr_estacion[ESTACION4].screen_position.y-150, 10, BLACK);
+            draw_models_text(ptr_estacion);
             
             // On pause, we draw a blinking message
             if (pause && ((framesCounter/30)%2)) DrawText("PAUSED", screenWidth/2-MeasureText("PAUSED",40)/2, screenHeight/2, 40, GRAY);
-
-
-
-
-            
 
             //com_port= GuiTextInputBox((Rectangle){600,40,120,20}, "COM","Enter COM number","OK",NULL,50,NULL);
             
@@ -277,11 +254,7 @@ void Estaciones(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadModel(ptr_estacion[ESTACION0].model);     // Unload model data
-    UnloadModel(ptr_estacion[ESTACION1].model);     // Unload model data
-    UnloadModel(ptr_estacion[ESTACION2].model);     // Unload model data
-    UnloadModel(ptr_estacion[ESTACION3].model);     // Unload model data
-    UnloadModel(ptr_estacion[ESTACION4].model);     // Unload model data
+    Estacion_kill(ptr_estacion);
     free(ptr_estacion);
     CloseWindow();          // Close window and OpenGL context
 
@@ -298,49 +271,61 @@ void Estaciones(void)
 
 }
 
-static Estacion* Estacion_init(int number, Estacion* ptr_estacion)
+static Estacion* Estacion_init(Estacion* ptr_estacion)
 {
+    int number;
+               
+    for(number=0;number<NUMBER_PLANES;number++)
+    {
     
 
     ptr_estacion[number].model = LoadModel("resources/models/obj/plane.obj");         // Load model
     ptr_estacion[number].texture = LoadTexture("resources/models/obj/plane_diffuse.png");  // Load model texture
-    ptr_estacion[number].model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = ptr_estacion[number].texture;            // Set map diffuse texture
+                
     ptr_estacion[number].pitch = 0.0f;
     ptr_estacion[number].roll = 0.0f;
     ptr_estacion[number].yaw = 0.0f;
     switch(number)
     {
-        case ESTACION3:
-            ptr_estacion[number].position = (Vector3){ 0.0f, 0.0f, 0.0f };
-            ptr_estacion[number].screen_position = (Vector2){ 0.0f, 0.0f };
-            break;
-        case ESTACION1:
-            ptr_estacion[number].position = (Vector3){ (float)DIST_PLANE, 0.0f, (float)DIST_PLANE };
-            ptr_estacion[number].screen_position = (Vector2){ (float)DIST_PLANE, 0.0f};
+        case ESTACION4:
+            ptr_estacion[number].position = (Vector3){ 0.0f, 0.0f, -(float)DIST_PLANE };
+            
             break;
         case ESTACION2:
-            ptr_estacion[number].position = (Vector3){ -(float)DIST_PLANE, 0.0f, -(float)DIST_PLANE };
-            ptr_estacion[number].screen_position = (Vector2){ -(float)DIST_PLANE, 0.0f};
+            ptr_estacion[number].position = (Vector3){ (float)DIST_PLANE, 0.0f, (float)DIST_PLANE };
+            
             break;
-        case ESTACION4:
+        case ESTACION3:
+            ptr_estacion[number].position = (Vector3){ -(float)DIST_PLANE, 0.0f, -(float)DIST_PLANE };
+            
+            break;
+        case ESTACION5:
             ptr_estacion[number].position = (Vector3){ (float)DIST_PLANE, 0.0f, -(float)DIST_PLANE };
             ptr_estacion[number].screen_position = (Vector2){ (float)DIST_PLANE, 0.0f};
             break;
-        case ESTACION0:
+        case ESTACION1:
             ptr_estacion[number].position = (Vector3){ -(float)DIST_PLANE, 0.0f, (float)DIST_PLANE };
-            ptr_estacion[number].screen_position = (Vector2){ -(float)DIST_PLANE, 0.0f};
-            break;   
+            
+            break;
+        case ESTACION0:
+            ptr_estacion[number].position = (Vector3){ 0.0f, 0.0f, (float)DIST_PLANE };
+            ptr_estacion[number].texture = LoadTexture("resources/models/obj/plane_diffuse0.png");  // Load model texture
+            break;       
         default:
             break;             
     }
-
+    ptr_estacion[number].model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = ptr_estacion[number].texture;// Set map diffuse texture
     
-
+    }
     return ptr_estacion;
 }
 
-static void matrixrotation(int number, Estacion* ptr_estacion)
+static void matrixrotation(Estacion* ptr_estacion)
 {
+    int number;
+                
+    for(number=0;number<NUMBER_PLANES;number++)
+    {
     Matrix matrizY = { 0 }; 
     Matrix matrizX = { 0 };
     Matrix matrizZ = { 0 };    
@@ -423,6 +408,7 @@ static void matrixrotation(int number, Estacion* ptr_estacion)
     // }
 
     ptr_estacion[number].model.transform = matrizFINAL;
+    }
 }
 
 static void keyboard_control(Estacion* ptr_estacion)
@@ -431,20 +417,30 @@ static void keyboard_control(Estacion* ptr_estacion)
         // Plane pitch (x-axis) controls
         if (IsKeyDown(KEY_UP)) 
         {
-            ptr_estacion[ESTACION0].pitch =check_angle(ptr_estacion[ESTACION0].pitch,TRUE);
-            ptr_estacion[ESTACION1].pitch =check_angle(ptr_estacion[ESTACION1].pitch,TRUE);
-            ptr_estacion[ESTACION2].pitch =check_angle(ptr_estacion[ESTACION2].pitch,TRUE);
-            ptr_estacion[ESTACION3].pitch =check_angle(ptr_estacion[ESTACION3].pitch,TRUE);
-            ptr_estacion[ESTACION4].pitch =check_angle(ptr_estacion[ESTACION4].pitch,TRUE);
+            int i;
+            for(i=0;i<NUMBER_PLANES;i++)
+            {
+                ptr_estacion[i].pitch =check_angle(ptr_estacion[i].pitch,TRUE);
+            }
+            // ptr_estacion[ESTACION0].pitch =check_angle(ptr_estacion[ESTACION0].pitch,TRUE);
+            // ptr_estacion[ESTACION1].pitch =check_angle(ptr_estacion[ESTACION1].pitch,TRUE);
+            // ptr_estacion[ESTACION2].pitch =check_angle(ptr_estacion[ESTACION2].pitch,TRUE);
+            // ptr_estacion[ESTACION3].pitch =check_angle(ptr_estacion[ESTACION3].pitch,TRUE);
+            // ptr_estacion[ESTACION4].pitch =check_angle(ptr_estacion[ESTACION4].pitch,TRUE);
 
         }
         else if (IsKeyDown(KEY_DOWN)) 
         {
-            ptr_estacion[ESTACION0].pitch =check_angle(ptr_estacion[ESTACION0].pitch,FALSE);
-            ptr_estacion[ESTACION1].pitch =check_angle(ptr_estacion[ESTACION1].pitch,FALSE);
-            ptr_estacion[ESTACION2].pitch =check_angle(ptr_estacion[ESTACION2].pitch,FALSE);
-            ptr_estacion[ESTACION3].pitch =check_angle(ptr_estacion[ESTACION3].pitch,FALSE);
-            ptr_estacion[ESTACION4].pitch =check_angle(ptr_estacion[ESTACION4].pitch,FALSE);
+           int i;
+            for(i=0;i<NUMBER_PLANES;i++)
+            {
+                ptr_estacion[i].pitch =check_angle(ptr_estacion[i].pitch,FALSE);
+            } 
+            // ptr_estacion[ESTACION0].pitch =check_angle(ptr_estacion[ESTACION0].pitch,FALSE);
+            // ptr_estacion[ESTACION1].pitch =check_angle(ptr_estacion[ESTACION1].pitch,FALSE);
+            // ptr_estacion[ESTACION2].pitch =check_angle(ptr_estacion[ESTACION2].pitch,FALSE);
+            // ptr_estacion[ESTACION3].pitch =check_angle(ptr_estacion[ESTACION3].pitch,FALSE);
+            // ptr_estacion[ESTACION4].pitch =check_angle(ptr_estacion[ESTACION4].pitch,FALSE);
 
         }
         // else
@@ -456,21 +452,30 @@ static void keyboard_control(Estacion* ptr_estacion)
         // Plane yaw (y-axis) controls
         if (IsKeyDown(KEY_A)) 
         {
-            ptr_estacion[ESTACION0].yaw =check_angle(ptr_estacion[ESTACION0].yaw,TRUE);
-            ptr_estacion[ESTACION1].yaw =check_angle(ptr_estacion[ESTACION1].yaw,TRUE);
-            ptr_estacion[ESTACION2].yaw =check_angle(ptr_estacion[ESTACION2].yaw,TRUE);
-            ptr_estacion[ESTACION3].yaw =check_angle(ptr_estacion[ESTACION3].yaw,TRUE);
-            ptr_estacion[ESTACION4].yaw =check_angle(ptr_estacion[ESTACION4].yaw,TRUE);            
+            int i;
+            for(i=0;i<NUMBER_PLANES;i++)
+            {
+                ptr_estacion[i].yaw =check_angle(ptr_estacion[i].yaw,TRUE);
+            }
+            // ptr_estacion[ESTACION0].yaw =check_angle(ptr_estacion[ESTACION0].yaw,TRUE);
+            // ptr_estacion[ESTACION1].yaw =check_angle(ptr_estacion[ESTACION1].yaw,TRUE);
+            // ptr_estacion[ESTACION2].yaw =check_angle(ptr_estacion[ESTACION2].yaw,TRUE);
+            // ptr_estacion[ESTACION3].yaw =check_angle(ptr_estacion[ESTACION3].yaw,TRUE);
+            // ptr_estacion[ESTACION4].yaw =check_angle(ptr_estacion[ESTACION4].yaw,TRUE);            
 
         }
         else if (IsKeyDown(KEY_S))
         { 
-            
-            ptr_estacion[ESTACION0].yaw =check_angle(ptr_estacion[ESTACION0].yaw,FALSE);
-            ptr_estacion[ESTACION1].yaw =check_angle(ptr_estacion[ESTACION1].yaw,FALSE);
-            ptr_estacion[ESTACION2].yaw =check_angle(ptr_estacion[ESTACION2].yaw,FALSE);
-            ptr_estacion[ESTACION3].yaw =check_angle(ptr_estacion[ESTACION3].yaw,FALSE);
-            ptr_estacion[ESTACION4].yaw =check_angle(ptr_estacion[ESTACION4].yaw,FALSE); 
+            int i;
+            for(i=0;i<NUMBER_PLANES;i++)
+            {
+                ptr_estacion[i].yaw =check_angle(ptr_estacion[i].yaw,FALSE);
+            }
+            // ptr_estacion[ESTACION0].yaw =check_angle(ptr_estacion[ESTACION0].yaw,FALSE);
+            // ptr_estacion[ESTACION1].yaw =check_angle(ptr_estacion[ESTACION1].yaw,FALSE);
+            // ptr_estacion[ESTACION2].yaw =check_angle(ptr_estacion[ESTACION2].yaw,FALSE);
+            // ptr_estacion[ESTACION3].yaw =check_angle(ptr_estacion[ESTACION3].yaw,FALSE);
+            // ptr_estacion[ESTACION4].yaw =check_angle(ptr_estacion[ESTACION4].yaw,FALSE); 
         }
         // else
         // {
@@ -481,21 +486,31 @@ static void keyboard_control(Estacion* ptr_estacion)
         // Plane roll (z-axis) controls
         if (IsKeyDown(KEY_RIGHT)) 
         {
-            ptr_estacion[ESTACION0].roll =check_angle(ptr_estacion[ESTACION0].roll,TRUE);
-            ptr_estacion[ESTACION1].roll =check_angle(ptr_estacion[ESTACION1].roll,TRUE);
-            ptr_estacion[ESTACION2].roll =check_angle(ptr_estacion[ESTACION2].roll,TRUE);
-            ptr_estacion[ESTACION3].roll =check_angle(ptr_estacion[ESTACION3].roll,TRUE);
-            ptr_estacion[ESTACION4].roll =check_angle(ptr_estacion[ESTACION4].roll,TRUE);             
+            int i;
+            for(i=0;i<NUMBER_PLANES;i++)
+            {
+                ptr_estacion[i].roll =check_angle(ptr_estacion[i].roll,TRUE);
+            }
+            // ptr_estacion[ESTACION0].roll =check_angle(ptr_estacion[ESTACION0].roll,TRUE);
+            // ptr_estacion[ESTACION1].roll =check_angle(ptr_estacion[ESTACION1].roll,TRUE);
+            // ptr_estacion[ESTACION2].roll =check_angle(ptr_estacion[ESTACION2].roll,TRUE);
+            // ptr_estacion[ESTACION3].roll =check_angle(ptr_estacion[ESTACION3].roll,TRUE);
+            // ptr_estacion[ESTACION4].roll =check_angle(ptr_estacion[ESTACION4].roll,TRUE);             
 
         
         }
         else if (IsKeyDown(KEY_LEFT)) 
         {
-            ptr_estacion[ESTACION0].roll =check_angle(ptr_estacion[ESTACION0].roll,FALSE);
-            ptr_estacion[ESTACION1].roll =check_angle(ptr_estacion[ESTACION1].roll,FALSE);
-            ptr_estacion[ESTACION2].roll =check_angle(ptr_estacion[ESTACION2].roll,FALSE);
-            ptr_estacion[ESTACION3].roll =check_angle(ptr_estacion[ESTACION3].roll,FALSE);
-            ptr_estacion[ESTACION4].roll =check_angle(ptr_estacion[ESTACION4].roll,FALSE);   
+            int i;
+            for(i=0;i<NUMBER_PLANES;i++)
+            {
+                ptr_estacion[i].roll =check_angle(ptr_estacion[i].roll,FALSE);
+            }
+            // ptr_estacion[ESTACION0].roll =check_angle(ptr_estacion[ESTACION0].roll,FALSE);
+            // ptr_estacion[ESTACION1].roll =check_angle(ptr_estacion[ESTACION1].roll,FALSE);
+            // ptr_estacion[ESTACION2].roll =check_angle(ptr_estacion[ESTACION2].roll,FALSE);
+            // ptr_estacion[ESTACION3].roll =check_angle(ptr_estacion[ESTACION3].roll,FALSE);
+            // ptr_estacion[ESTACION4].roll =check_angle(ptr_estacion[ESTACION4].roll,FALSE);   
         }
         // else
 
@@ -524,4 +539,41 @@ static float check_angle(float number, int flag)
         number -= 1.0f;
     }
     return number;
+}
+
+static void text_position(Estacion* ptr_estacion,Camera camera)
+{
+    int number;
+    for(number=0;number<NUMBER_PLANES;number++)
+    {
+    ptr_estacion[number].screen_position = GetWorldToScreen((Vector3){ptr_estacion[number].position.x, ptr_estacion[number].position.y + 2.5f, ptr_estacion[number].position.z}, camera);
+    }
+}
+
+static void draw_models(Estacion* ptr_estacion)
+{
+    int number;
+    for(number=0;number<NUMBER_PLANES;number++)
+    {
+        DrawModel( ptr_estacion[number].model, ptr_estacion[number].position, 0.5f, WHITE);   // Draw 3d model with texture
+    }
+}
+
+static void draw_models_text(Estacion* ptr_estacion)
+{
+    int number;
+    for(number=0;number<NUMBER_PLANES;number++)
+    {
+        DrawText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",number,(int)ptr_estacion[number].pitch,(int)ptr_estacion[number].roll,(int)ptr_estacion[number].yaw), (int)ptr_estacion[number].screen_position.x - MeasureText(TextFormat("ESTACION: %01i\nPITCH: %04i\nROLL:   %04i\nYAW:    %04i",number,(int)ptr_estacion[number].pitch,(int)ptr_estacion[number].roll,(int)ptr_estacion[number].yaw), 10)/2, (int)ptr_estacion[number].screen_position.y-150, 10, BLACK);
+    }
+}
+
+static Estacion* Estacion_kill(Estacion* ptr_estacion)
+{
+    int number;
+               
+    for(number=0;number<NUMBER_PLANES;number++)
+    {
+    UnloadModel(ptr_estacion[number].model);     // Unload model data
+    }
 }
