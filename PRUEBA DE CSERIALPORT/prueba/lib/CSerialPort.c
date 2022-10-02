@@ -164,7 +164,7 @@ int ReciveData(PORT com_port, char * data,int len)
 {
 	DWORD dwEventMask;
 	DWORD NoBytesRead;
-	BOOL Status = WaitCommEvent(com_port, &dwEventMask, NULL);
+	BOOL Status;// = WaitCommEvent(com_port, &dwEventMask, NULL);
 	if (Status == FALSE) {
 		return FALSE;
 	}

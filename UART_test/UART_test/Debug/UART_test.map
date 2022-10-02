@@ -1407,23 +1407,23 @@ OUTPUT(UART_test.axf elf32-littlearm)
  .debug_line    0x0000106d      0x6d8 ./SDK/startup/startup_mk64f12.o
  .debug_line    0x00001745      0x1c7 ./SDK/CMSIS/system_MK64F12.o
 
-.debug_str      0x00000000    0x7ca68
- .debug_str     0x00000000    0x76fae ./source/App.o
-                              0x77131 (size before relaxing)
- .debug_str     0x00076fae     0x4f65 ./source/gpio.o
-                              0x7c16d (size before relaxing)
- .debug_str     0x0007bf13      0x1ce ./source/uart_drv.o
-                              0x7bf4a (size before relaxing)
- .debug_str     0x0007c0e1      0x11b ./SDK/startup/hardware.o
-                              0x77215 (size before relaxing)
- .debug_str     0x0007c1fc       0x1b ./SDK/startup/main.o
-                              0x76fe9 (size before relaxing)
- .debug_str     0x0007c217       0x36 ./SDK/startup/semihost_hardfault.o
-                               0x2d4f (size before relaxing)
- .debug_str     0x0007c24d      0x7b9 ./SDK/startup/startup_mk64f12.o
-                               0x35bd (size before relaxing)
- .debug_str     0x0007ca06       0x62 ./SDK/CMSIS/system_MK64F12.o
-                              0x77124 (size before relaxing)
+.debug_str      0x00000000    0x7ca44
+ .debug_str     0x00000000    0x76f8a ./source/App.o
+                              0x7710d (size before relaxing)
+ .debug_str     0x00076f8a     0x4f65 ./source/gpio.o
+                              0x7c149 (size before relaxing)
+ .debug_str     0x0007beef      0x1ce ./source/uart_drv.o
+                              0x7bf26 (size before relaxing)
+ .debug_str     0x0007c0bd      0x11b ./SDK/startup/hardware.o
+                              0x771f1 (size before relaxing)
+ .debug_str     0x0007c1d8       0x1b ./SDK/startup/main.o
+                              0x76fc5 (size before relaxing)
+ .debug_str     0x0007c1f3       0x36 ./SDK/startup/semihost_hardfault.o
+                               0x2d2b (size before relaxing)
+ .debug_str     0x0007c229      0x7b9 ./SDK/startup/startup_mk64f12.o
+                               0x3599 (size before relaxing)
+ .debug_str     0x0007c9e2       0x62 ./SDK/CMSIS/system_MK64F12.o
+                              0x77100 (size before relaxing)
 
 .comment        0x00000000       0x7e
  .comment       0x00000000       0x7e ./source/App.o

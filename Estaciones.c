@@ -2,7 +2,7 @@
 
 
 static Estacion* Estacion_init(Estacion* ptr_estacion);
-static Estacion* Estacion_kill(Estacion* ptr_estacion);
+static void Estacion_kill(Estacion* ptr_estacion);
 static void matrixrotation(Estacion* ptr_estacion);
 static void keyboard_control(Estacion* ptr_estacion);
 static float check_angle(float number,int flag);
@@ -63,13 +63,20 @@ void Estaciones(void)
     
 
     //-------------------------------------INICIALIZA PUERTO SERIE---------------------------------------------
-    PORT port_COM3 = OpenPort(PORTCOM4);
+    PORT port_COM3 = OpenPort(PORTCOM3);
+    if(!port_COM3)
+    {
+        printf("error open port");
+    }
     SetPortBoudRate(port_COM3, CP_BOUD_RATE_9600);
+    	
+	SetPortDataBits(port_COM3, CP_DATA_BITS_8);
     char recivestr[SERIAL_MESSAGE_SIZE];
     int count=0;
     int flag=0;
+    int group=0;
     char buffer[BUFFER_SIZE] ={0};
-    char* pitch_ptr=&buffer[4];
+    char* pitch_ptr=&buffer[10];
     char* roll_ptr=&buffer[9];
     char* yaw_ptr=&buffer[14];
     //---------------------------------------------------------------------------------------------------------
@@ -164,7 +171,7 @@ void Estaciones(void)
             //---------------------LEE PUERTO SERIE-----------------
             if(ReciveData(port_COM3, recivestr, SERIAL_MESSAGE_SIZE))
             {
-                if(recivestr[0]=='A')
+                if(recivestr[0]=='G')
                 {
                     count=0;
                     flag=1;
@@ -175,9 +182,10 @@ void Estaciones(void)
                 count++;
                 if(count==BUFFER_SIZE)
                 {
-                // ptr_estacion[ESTACION1].pitch = atoi(pitch_ptr);
-                    //ptr_estacion[ESTACION1].roll = atoi(roll_ptr);
-                    //ptr_estacion[ESTACION1].yaw = atoi(yaw_ptr);
+                    group= (buffer[3]-'0');
+                    ptr_estacion[group].pitch = atoi(pitch_ptr);
+                    ptr_estacion[group].roll = atoi(roll_ptr);
+                    //ptr_estacion[group].yaw = atoi(yaw_ptr);
                     count=0;
                     flag=0;
                 }
@@ -568,7 +576,7 @@ static void draw_models_text(Estacion* ptr_estacion)
     }
 }
 
-static Estacion* Estacion_kill(Estacion* ptr_estacion)
+static void Estacion_kill(Estacion* ptr_estacion)
 {
     int number;
                

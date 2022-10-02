@@ -165,10 +165,10 @@ int ReciveData(PORT com_port, char * data,int len)
 	//DWORD dwEventMask;
 	DWORD NoBytesRead;
 	BOOL Status;
-	// BOOL Status = WaitCommEvent(com_port, &dwEventMask, NULL);
-	// if (Status == FALSE) {
-	// 	return FALSE;
-	// }
+	//BOOL Status = WaitCommEvent(com_port, &dwEventMask, NULL);
+	if (Status == FALSE) {
+		return FALSE;
+	}
 	Status = ReadFile(com_port, data, len, &NoBytesRead, NULL);
 	data[NoBytesRead] = 0;
 	if (Status == FALSE) {
