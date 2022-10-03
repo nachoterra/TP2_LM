@@ -63,26 +63,26 @@ void Estaciones(void)
     
 
     //-------------------------------------INICIALIZA PUERTO SERIE---------------------------------------------
-    PORT port_COM3 = OpenPort(PORTCOM3);
-    if(!port_COM3)
+    PORT port_COM = OpenPort(PORTCOM4);
+    if(!port_COM)
     {
         printf("error open port");
     }
-    SetPortBoudRate(port_COM3, CP_BOUD_RATE_9600);
+    SetPortBoudRate(port_COM, CP_BOUD_RATE_9600);
     	
-	SetPortDataBits(port_COM3, CP_DATA_BITS_8);
+	SetPortDataBits(port_COM, CP_DATA_BITS_8);
     char recivestr[SERIAL_MESSAGE_SIZE];
     int count=0;
     int flag=0;
-    int group=0;
+    //int group=0;
     char buffer[BUFFER_SIZE] ={0};
-    char* pitch_ptr=&buffer[10];
-    char* roll_ptr=&buffer[9];
-    char* yaw_ptr=&buffer[14];
+    char pitch_ptr[4]={'0','0','0','0'};
+    char roll_ptr[4]={'0','0','0','0'};
+   // char* yaw_ptr=&buffer[14];
     //---------------------------------------------------------------------------------------------------------
 
     //----------------------------------FRAMES POR SEGUNDO-----------------------------------------------------
-    SetTargetFPS(FPS);               // Set our game to run at 60 frames-per-second
+    //SetTargetFPS(FPS);               // Set our game to run at 60 frames-per-second
     //---------------------------------------------------------------------------------------------------------
 
 
@@ -169,9 +169,9 @@ void Estaciones(void)
             keyboard_control(ptr_estacion);
         
             //---------------------LEE PUERTO SERIE-----------------
-            if(ReciveData(port_COM3, recivestr, SERIAL_MESSAGE_SIZE))
+            if(ReciveData(port_COM, recivestr, SERIAL_MESSAGE_SIZE))
             {
-                if(recivestr[0]=='G')
+                if(recivestr[0]=='S')
                 {
                     count=0;
                     flag=1;
@@ -182,9 +182,11 @@ void Estaciones(void)
                 count++;
                 if(count==BUFFER_SIZE)
                 {
-                    group= (buffer[3]-'0');
-                    ptr_estacion[group].pitch = atoi(pitch_ptr);
-                    ptr_estacion[group].roll = atoi(roll_ptr);
+                    //group= (buffer[3]-'0');
+                    memcpy(pitch_ptr,&buffer[57],4);
+                    memcpy(roll_ptr,&buffer[52],4);
+                    ptr_estacion[ESTACION4].pitch = atoi(&pitch_ptr[0]);
+                    ptr_estacion[ESTACION4].roll = atoi(&roll_ptr[0]);
                     //ptr_estacion[group].yaw = atoi(yaw_ptr);
                     count=0;
                     flag=0;

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 //#include <pthread.h>
 
@@ -21,7 +22,7 @@
 #define PORTCOM5 5
 #define PORTCOM6 6
 #define PORTCOM7 7
-#define BUFFER_SIZE 14
+#define BUFFER_SIZE 73
 #define FPS 60
 #define NUMBER_PLANES 6
 //AG1P0000R0000Y0000T
