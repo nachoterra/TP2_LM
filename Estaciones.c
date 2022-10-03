@@ -63,7 +63,7 @@ void Estaciones(void)
     
 
     //-------------------------------------INICIALIZA PUERTO SERIE---------------------------------------------
-    PORT port_COM = OpenPort(PORTCOM4);
+    PORT port_COM = OpenPort(PORTCOM5);
     if(!port_COM)
     {
         printf("error open port");
