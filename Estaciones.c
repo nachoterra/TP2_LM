@@ -171,27 +171,32 @@ void Estaciones(void)
             //---------------------LEE PUERTO SERIE-----------------
             if(ReciveData(port_COM, recivestr, SERIAL_MESSAGE_SIZE))
             {
-                if(recivestr[0]=='S')
+                // if(recivestr[0]=='S')
+                // {
+                //     count=0;
+                //     flag=1;
+                // } 
+                // if(flag)
+                // {
+                // buffer[count]=recivestr[0];
+                // count++;
+                // if(count==BUFFER_SIZE)
+                // {
+                //     //group= (buffer[3]-'0');
+                int i=0;
+                for(i=0;i<NUMBER_PLANES;i++)
                 {
-                    count=0;
-                    flag=1;
-                } 
-                if(flag)
-                {
-                buffer[count]=recivestr[0];
-                count++;
-                if(count==BUFFER_SIZE)
-                {
-                    //group= (buffer[3]-'0');
-                    memcpy(pitch_ptr,&buffer[57],4);
-                    memcpy(roll_ptr,&buffer[52],4);
-                    ptr_estacion[ESTACION4].pitch = atoi(&pitch_ptr[0]);
-                    ptr_estacion[ESTACION4].roll = atoi(&roll_ptr[0]);
-                    //ptr_estacion[group].yaw = atoi(yaw_ptr);
-                    count=0;
-                    flag=0;
+                    memcpy(pitch_ptr,&recivestr[9+i*12],4);
+                    memcpy(roll_ptr,&recivestr[4+i*12],4);
+                    ptr_estacion[i].pitch = atoi(&pitch_ptr[0]);
+                    ptr_estacion[i].roll = atoi(&roll_ptr[0]);
                 }
-                }
+
+                //     //ptr_estacion[group].yaw = atoi(yaw_ptr);
+                //     count=0;
+                //     flag=0;
+                // }
+                //}
 
             }
             else

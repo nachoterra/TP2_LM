@@ -34,7 +34,7 @@ int main(){
 
 
 	// printf("hola");
-	PORT p3 = OpenPort(4);
+	PORT p3 = OpenPort(3);
 	SetPortBoudRate(p3, CP_BOUD_RATE_9600);
 	SetPortDataBits(p3, CP_DATA_BITS_8);
 
@@ -51,13 +51,13 @@ int main(){
 	// 	//exit(1);             
 	// }
 	// //char sendstr[80] = "Hello CSerialPort";
-	char recivestr[72];
+	char recivestr[74];
 	
 	// //SendData(p1, sendstr);
 	while(1)
 	{
 		
-		if(ReciveData(p3, recivestr, 72))
+		if(ReciveData(p3, recivestr, 74))
 		{
 		int num = atoi(recivestr);
 		printf("recivo:%s ",recivestr);

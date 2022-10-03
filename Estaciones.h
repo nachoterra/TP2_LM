@@ -14,7 +14,7 @@
 #define DIST_PLANE 90 
 #define S_WIDTH 1200
 #define S_HEIGHT 700
-#define SERIAL_MESSAGE_SIZE 1
+#define SERIAL_MESSAGE_SIZE 74
 #define PORTCOM1 1
 #define PORTCOM2 2
 #define PORTCOM3 3
@@ -22,7 +22,7 @@
 #define PORTCOM5 5
 #define PORTCOM6 6
 #define PORTCOM7 7
-#define BUFFER_SIZE 73
+#define BUFFER_SIZE 74
 #define FPS 60
 #define NUMBER_PLANES 6
 //AG1P0000R0000Y0000T
